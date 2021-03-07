@@ -1,16 +1,16 @@
 package server
 
+import logger.Logger
+import message.{Message, _}
 import monix.eval.Task
 import monix.execution.Scheduler
-import server.logger.Logger
-import server.message.Message
-import server.message._
+import server.Server.Port
 
-import java.io.{BufferedInputStream, BufferedReader, IOException, InputStreamReader, PrintWriter}
+import java.io._
 import java.net.{DatagramPacket, InetAddress, ServerSocket, Socket}
 import java.nio.ByteBuffer
-import java.util.concurrent.{ConcurrentHashMap, LinkedBlockingQueue}
 import java.util.Queue
+import java.util.concurrent.{ConcurrentHashMap, LinkedBlockingQueue}
 import scala.collection.mutable
 import scala.concurrent.{Future, Promise, blocking}
 import scala.jdk.CollectionConverters._
@@ -21,20 +21,15 @@ type MessageQueueElement = (Message, Socket)
 type MessageQueue = LinkedBlockingQueue[MessageQueueElement]
 
 object Server {
-  val Port = 10231
-  val BufferCapacity = 2048
+  val Port = 10232
   val io = Scheduler.io("server-io-thread")
-  
-  def scheduleBlockingIO[T](blockingTask: Task[T]): Task[T] = {
-    blockingTask.executeOn(io)
-  }
   
   def apply(): Task[Unit] = {
     val messageQueue = new LinkedBlockingQueue[MessageQueueElement]
     val clientMap = new ConcurrentHashMap[String, Socket].asScala
     val dispatchTask = DispatchTask(messageQueue, clientMap)
     val acceptTask = AcceptTCPConnectionTask(messageQueue)
-    Task.parSequenceUnordered(dispatchTask :: acceptTask :: Nil) >> Task.unit
+    Task.parSequenceUnordered(dispatchTask :: acceptTask :: Nil).executeOn(io) >> Task.unit
   }
 }
 
@@ -43,36 +38,42 @@ object Server {
  */
 object AcceptTCPConnectionTask {
   def apply(messageQueue: MessageQueue): Task[Unit] = {
-    val task = new AcceptTCPConnectionTask(messageQueue).task()
-    Server.scheduleBlockingIO(task)
+    new AcceptTCPConnectionTask(messageQueue).acceptConnectionTask()
   }
 }
 
 case class AcceptTCPConnectionTask(messageQueue: MessageQueue) {
-  import Server._ 
+  import Server._
   
-  def task(): Task[Unit] = {
+  def acceptConnectionTask(): Task[Unit] = {
     for 
+      _ <- Task { Logger.logGreen(s"Listening on port ${Port}") }
       serverSokcet <- createServerSocket()
       _ <- acceptTask(serverSokcet)
     yield ()
   }
   
+  def sock(serverSocket: ServerSocket): Task[Socket] = {
+    Task { serverSocket.accept() }
+  }
+  
+  def acceptTask(serverSocket: ServerSocket): Task[Unit] = {
+    sock(serverSocket).flatMap(socket => {
+      val receiveTask = ReceiveTCPStreamTask(messageQueue, socket)
+      val acceptConnectionTask = acceptTask(serverSocket)
+      Task.parSequenceUnordered(receiveTask :: acceptConnectionTask :: Nil) >> Task.unit
+    })
+  }
+
   def createServerSocket(): Task[ServerSocket] = Task {
     try
       new ServerSocket(Port)
     catch
-      case e: IOException => 
-        Logger.logError(s"Port ${Port} is taken! Cannot create a tcp socket!")
+      case e: IOException =>
+        Logger.logRed(s"Port ${Port} is taken! Cannot create a tcp socket!")
         throw e
   }
 
-  def acceptTask(serverSocket: ServerSocket): Task[Unit] = {
-    val socket = serverSocket.accept() 
-    val receiveTask = ReceiveTCPStreamTask(messageQueue, socket)
-    val acceptConnectionTask = acceptTask(serverSocket)
-    Task.parSequenceUnordered(receiveTask :: acceptConnectionTask :: Nil) >> Task.unit
-  }
 }
 
 /**
@@ -80,8 +81,7 @@ case class AcceptTCPConnectionTask(messageQueue: MessageQueue) {
  */
 object ReceiveTCPStreamTask {
   def apply(messageQueue: MessageQueue, socket: Socket): Task[Unit] = {
-    val task = new ReceiveTCPStreamTask(messageQueue, socket).receiveTask()
-    Server.scheduleBlockingIO(task)
+    new ReceiveTCPStreamTask(messageQueue, socket).receiveTask()
   }
 }
 
@@ -90,13 +90,15 @@ case class ReceiveTCPStreamTask(messageQueue: MessageQueue, socket: Socket) {
   val in = socket.getInputStream
 
   def receiveTask(): Task[Unit] = {
+    Task { Logger.logYellow("Receiver!") } >>
     readMessage().flatMap(option => {
-      option match 
-        case Some(msg) => 
-          Logger.log(s"Received message: $msg!")
+      option match
+        case Some(msg) =>
           messageQueue.put((msg, socket))
           receiveTask()
-        case None => Task.unit
+        case None => 
+          Logger.logYellow("Failed to parse a message!")
+          receiveTask()
     })
   }
   
@@ -106,7 +108,7 @@ case class ReceiveTCPStreamTask(messageQueue: MessageQueue, socket: Socket) {
     catch
       case e: IOException =>
         socket.close()
-        Logger.logError("Connection has been closed!")
+        Logger.logRed("Connection has been closed!")
         None
   }
 }
@@ -116,13 +118,13 @@ case class ReceiveTCPStreamTask(messageQueue: MessageQueue, socket: Socket) {
  */
 object DispatchTask {
   def apply(messageQueue: MessageQueue, clientMap: ClientMap): Task[Unit] = {
-    val task = new DispatchTask(messageQueue, clientMap).dispatchTask()
-    Server.scheduleBlockingIO(task)
+    new DispatchTask(messageQueue, clientMap).dispatchTask()
   }
 }
 
 case class DispatchTask(messageQueue: MessageQueue, clientMap: ClientMap) {
   def dispatchTask(): Task[Unit] = {
+    Task { Logger.logRed("Dispatcher!") } >>
     Task {
       val (message, socket) = messageQueue.take()
       dispatchMessage(message, socket)
@@ -137,23 +139,26 @@ case class DispatchTask(messageQueue: MessageQueue, clientMap: ClientMap) {
   }
   
   def handleJoinMsg(joinMessage: JoinMessage, socket: Socket): Unit = {
-    clientMap += joinMessage.senderId() -> socket
+    Logger.logGreen(s"${joinMessage.nick} joined!")
+    clientMap += joinMessage.nick -> socket
     sendToAll(joinMessage)
   }
   
   def handleByeMsg(byeMessage: ByeMessage): Unit = {
-    clientMap -= byeMessage.senderId() 
+    Logger.logYellow(s"${byeMessage.nick} left!")
+    clientMap -= byeMessage.nick
     sendToAll(byeMessage)
   }
   
   def handleChatMessage(chatMessage: ChatMessage): Unit = {
-    sendToAll(chatMessage) 
+    Logger.log(s"${chatMessage.nick} sent message: ${chatMessage.message}!")
+    sendToAll(chatMessage)
   }
   
   def sendToAll(message: Message): Unit = {
-    val senderNick = message.senderId()
+    val senderNick = message.senderID()
     for (nick, socket) <- clientMap do
-      if senderNick != nick then 
+      if senderNick != nick then
         val out = socket.getOutputStream
         out.write(message.encode())
         out.flush()

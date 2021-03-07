@@ -1,4 +1,4 @@
-package server.message
+package message
 
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -9,10 +9,10 @@ import java.util
  * --- Module API ---
 */
 
-sealed trait Message(nick: String) {
+abstract class Message(nick: String) {
   def encode(): Array[Byte]
   
-  final def senderId(): String = nick
+  def senderID(): String = nick
 }
 
 
@@ -149,7 +149,7 @@ object MessageEncoder {
   
   def encodeHeader(header: Header): Array[Byte] = {
     ByteBuffer.allocate(Header.HeaderBytesNumber)
-      .putInt(header.contentBytesNumber)
+      .putInt(header.totalBytesNumber)
       .put(header.nickBytesNumber.toByte)
       .put(header.messageTypeId.toByte)
       .array()

@@ -1,50 +1,42 @@
-package client
+package terminal
 
-import client.message.{ByeMessage, ChatMessage, JoinMessage, Message}
+import event.{Command, CommandEvent, EventQueue, LeaveChat, SendASCIIArt, SendMessage}
+import logger.Logger
+import message.{ByeMessage, ChatMessage, JoinMessage, Message}
 import monix.eval.Task
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 import scala.io.StdIn
-
-case class Chat() {
-  val terminalReader = TerminalReader()
-  val terminalWriter = TerminalWriter()
-  
-  terminalWriter.intro()
-  val nick = terminalReader.getLine()
-  terminalWriter.welcome(nick)
-  
-  val future = TCPClient(nick, terminalWriter, terminalReader)
-  Await.result(future, Duration.Inf)
-}
-
-sealed trait Command 
-
-final case class SendMessage(message: String) extends Command
-final case class SendASCIIArt() extends Command
-final case class LeaveChat() extends Command
 
 case class TerminalReader() {
   
-  def getLine(): String = {
-    StdIn.readLine()
+  def readAsync(eventQueue: EventQueue): Task[Unit] = {
+    val logTask = Task { Logger.logRed("Reading async task!") }
+    logTask >> dispatchCommands(eventQueue)
   }
   
+  def dispatchCommands(eventQueue: EventQueue): Task[Unit] = {
+    parseCommand()
+      .map(command => CommandEvent(command))
+      .flatMap(command => Task { eventQueue.put(command) }) >> dispatchCommands(eventQueue)
+  }
+
   def parseCommand(): Task[Command] = Task {
-    println("Reading messages!")
     val line = StdIn.readLine()
-    line match {
+    line match
       case leaveString if leaveString.matches("!leave") => LeaveChat()
       case asciiString if asciiString.matches("!ascii") => SendASCIIArt()
       case messageString => SendMessage(messageString)
-    }
+  }
+  
+  def readLine(): Task[String] = Task {
+    StdIn.readLine()
   }
 }
 
+
 case class TerminalWriter() {
   
-  def intro(): Unit = {
+  def intro(): Task[Unit] = Task {
     val color = Console.RED
     val reset = Console.RESET
     println(
@@ -55,49 +47,38 @@ case class TerminalWriter() {
          |    !ascii - to send ascii art
          |""".stripMargin)
   }
-  
-  def welcome(nick: String): Unit = {
+
+  def welcome(nick: String): Task[Unit] = Task {
     val color = Console.YELLOW
     val reset = Console.RESET
     println(
       s"""${color}***                    Welcome ${nick}                ***${reset}
          |""".stripMargin)
-    
+
   }
-  
-  
-  def writeMessage(received: Message): Unit = {
+
+  def writeMessage(received: Message): Task[Unit] = {
     received match
       case joinMessage: JoinMessage => writeFormatted(joinMessage.nick, "joined!")
       case byeMessage:  ByeMessage  => writeFormatted(byeMessage.nick, "left!")
       case chatMessage: ChatMessage => writeFormatted(chatMessage.nick, chatMessage.message)
   }
-  
-  def writeCommand(command: Command): Unit = {
-    command match 
-      case SendMessage(message) => 
-        writeFormatted("me", message)
-      case SendASCIIArt() => 
-        writeFormatted("info", "!ascii")
-      case LeaveChat() => 
-        writeInfo("!left")
-        writeFormatted("me", "left!")
+
+  def writeInfo(info: String): Task[Unit] = {
+    writeFormatted("info", info)
   }
-  
-  def writeInfo(info: String): Unit = {
-    writeFormatted("info", info) 
-  }
-  
-  def writeFormatted(who: String, what: String): Unit = {
+
+  def writeFormatted(who: String, what: String): Task[Unit] = Task {
     val color = pickColor(who)
     val reset = Console.RESET
     println(s"${color}who${reset}> ${what}")
   }
-  
+
   def pickColor(who: String): String = {
     who match
       case me if me == "me" => Console.GREEN
       case info if info == "info" => Console.BLUE
       case other => Console.YELLOW
   }
+
 }

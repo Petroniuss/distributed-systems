@@ -1,4 +1,4 @@
-package client.message
+package message
 
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -34,11 +34,11 @@ final case class ChatMessage(nick: String, message: String) extends Message(nick
 
 /*
 * --- Message Format ---
-*     4 bytes - client.message length (total) - n      | HEADER
+*     4 bytes - message length (total) - n      | HEADER
 *     1 byte  - nick length            - m      | HEADER
-*     1 byte  - client.message type id        - x      | HEADER
+*     1 byte  - message type id        - x      | HEADER
 *     m bytes - nick 
-*     (n - 4 - 1 - 1 - m) = (n - m - 6) bytes for additional content parsed according to client.message type
+*     (n - 4 - 1 - 1 - m) = (n - m - 6) bytes for additional content parsed according to message type
 */
 object Header {
   val HeaderBytesNumber = 4 + 1 + 1

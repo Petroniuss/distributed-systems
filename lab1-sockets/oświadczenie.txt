@@ -1,0 +1,12 @@
+Ja, Patryk Wojtyczek, oświadczam, ze samodzielnie zrobiłem wysłane zadania.
+
+Zrobione zadania to wszystkie 4 wymienione w kontekście.
+Środowisko:
+    - MacOS
+    - JavaSE 15
+    - Python 3.9
+    - Visual Studio Code
+
+Do zadania 4-tego po prostu ustalam prosty protokól:
+    - pierwszy bajt (BIG_ENDIAN) identyfikuje jakiego rodzaju jest klient
+    - następne bajty to właściwa wiadomość zakodowana z UTF-8
