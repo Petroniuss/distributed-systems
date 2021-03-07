@@ -1,14 +1,13 @@
 package chat
 
 import client.Client
-import event.Event
+import event.{Event, EventDispatcher}
 import message.Message
 import monix.eval.Task
 import terminal.{TerminalReader, TerminalWriter}
 
 import java.util.concurrent.LinkedBlockingQueue
 
-// todo initialize, get nick and start tcp threads, dispatcher
 object Chat {
   val terminalReader = TerminalReader()
   val terminalWriter = TerminalWriter()
@@ -21,7 +20,12 @@ object Chat {
       nick <- terminalReader.readLine()
       _ <- terminalWriter.welcome(nick)
       client = Client(nick, eventQueue, outgoingMessageQueue)
-      _ <- client.TCP()
+      tcp = client.TCP()
+      read = terminalReader.readAsync(eventQueue)
+      dispatcher = EventDispatcher(nick, eventQueue, outgoingMessageQueue, terminalWriter)
+      dispatch = dispatcher.asyncDispatch()
+      seq = tcp :: read :: dispatch :: Nil
+      _ <- Task.parSequenceUnordered(seq)
     yield ()
   }
 

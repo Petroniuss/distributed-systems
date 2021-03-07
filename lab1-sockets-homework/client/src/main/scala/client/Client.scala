@@ -37,7 +37,7 @@ case class TCPClient(nick: String,
                      eventQueue: EventQueue, 
                      outgoingMessageQueue: OutgoingMessageQueue) {
   
-  def connect(): Task[Socket] = Logger.logYellow("why doesn't this work?") >> Task {
+  def connect(): Task[Socket] = Task {
     try
       val socket = new Socket("localhost", Server.Port)
       val joinMessageBytes = JoinMessage(nick).encode()
@@ -63,7 +63,7 @@ case class TCPClient(nick: String,
           throw exception
     } >> readTask()
     
-    Logger.logYellow("Async reader is up!") >> readTask()
+    Logger.logYellow("Async tcp-reader is up!") >> readTask()
   }
   
   def writeAsync(socket: Socket): Task[Unit] = {
@@ -72,9 +72,9 @@ case class TCPClient(nick: String,
       val message = outgoingMessageQueue.take()
       val encoded = message.encode()
       out.write(encoded)
-    } >> writeTask()
+    }.loopForever 
     
-    Logger.logRed("Async writer ready!") >> writeTask()
+    Logger.logRed("Async tcp-writer ready!") >> writeTask()
   }
   
 }

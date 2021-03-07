@@ -28,7 +28,7 @@ final case class ByeMessage(nick: String) extends Message(nick) {
 
 final case class ChatMessage(nick: String, message: String) extends Message(nick) {
   override def encode(): Array[Byte] =
-    MessageEncoder.encodeMessage(ByeMessage.messageTypeId, nick, message)
+    MessageEncoder.encodeMessage(ChatMessage.messageTypeId, nick, message)
 }
 
 
@@ -109,8 +109,7 @@ object MessageDecoder {
   }
   
   def decodeString(bytes: Array[Byte], offset: Int, length: Int): String = {
-    val stringBytes = ByteBuffer.wrap(bytes, offset, length).array()
-    new String(stringBytes, UTF_8)
+    new String(bytes, offset, length, UTF_8)
   }
 
   def decodeNick(header: Header, bodyBytes: Array[Byte]): String = {

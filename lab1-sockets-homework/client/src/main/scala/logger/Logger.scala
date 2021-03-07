@@ -5,7 +5,7 @@ import monix.eval.Task
 object Logger {
   
   def log(msg: String): Task[Unit] = {
-    logF(msg, Console.RESET)
+    logF(msg, Console.BOLD)
   }
   
   def logYellow(msg: String): Task[Unit] = {

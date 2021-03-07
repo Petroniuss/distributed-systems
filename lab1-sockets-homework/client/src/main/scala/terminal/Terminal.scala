@@ -10,14 +10,14 @@ import scala.io.StdIn
 case class TerminalReader() {
   
   def readAsync(eventQueue: EventQueue): Task[Unit] = {
-    val logTask = Task { Logger.logRed("Reading async task!") }
+    val logTask = Logger.logRed("Async terminal-reader up!")
     logTask >> dispatchCommands(eventQueue)
   }
   
   def dispatchCommands(eventQueue: EventQueue): Task[Unit] = {
     parseCommand()
       .map(command => CommandEvent(command))
-      .flatMap(command => Task { eventQueue.put(command) }) >> dispatchCommands(eventQueue)
+      .flatMap(command => Task { eventQueue.put(command) }).loopForever 
   }
 
   def parseCommand(): Task[Command] = Task {
@@ -40,19 +40,23 @@ case class TerminalWriter() {
     val color = Console.RED
     val reset = Console.RESET
     println(
-      s"""${color}***                    Hello                ***${reset}
-         | To join the chat type in your nick! 
-         | You may use additional commands:
-         |    !leave - to leave the chat  
-         |    !ascii - to send ascii art
-         |""".stripMargin)
+      s"""|$color--------------------------------------------------------------------
+          |         ***                    Hello                ***
+          |--------------------------------------------------------------------${reset}
+          | To join the chat type in your nick! 
+          | You may use additional commands:
+          |    !leave - to leave the chat  
+          |    !ascii - to send ascii art
+          |""".stripMargin)
   }
 
   def welcome(nick: String): Task[Unit] = Task {
     val color = Console.YELLOW
     val reset = Console.RESET
     println(
-      s"""${color}***                    Welcome ${nick}                ***${reset}
+      s"""|$color--------------------------------------------------------------------
+         |         ***                    Welcome ${nick}                ***
+         |--------------------------------------------------------------------${reset}
          |""".stripMargin)
 
   }
@@ -71,12 +75,11 @@ case class TerminalWriter() {
   def writeFormatted(who: String, what: String): Task[Unit] = Task {
     val color = pickColor(who)
     val reset = Console.RESET
-    println(s"${color}who${reset}> ${what}")
+    println(s"${color}${who}${reset}> ${what}")
   }
 
   def pickColor(who: String): String = {
     who match
-      case me if me == "me" => Console.GREEN
       case info if info == "info" => Console.BLUE
       case other => Console.YELLOW
   }

@@ -59,7 +59,7 @@ case class ListenTCP(messageQueue: MessageQueue) {
   def acceptConnections(serverSocket: ServerSocket): Task[Unit] = {
     for
       socket <- Task { serverSocket.accept() }
-      receiveTask = ReceiveTCPStreamTask(messageQueue, socket)
+      receiveTask = ReceiveTCPStreamTask(messageQueue, socket).onErrorHandle(_ => ())
       acceptConnectionTask = acceptConnections(serverSocket)
       taskSeq = receiveTask :: acceptConnectionTask :: Nil
       _ <- Task.parSequenceUnordered(taskSeq) 
@@ -105,8 +105,8 @@ case class ReceiveTCPStreamTask(messageQueue: MessageQueue, socket: Socket) {
   def readMessage(): Task[Option[Message]] = {
     Task { Message(in) }.onErrorHandleWith(throwable => 
       throwable match 
-        case e: IOException =>
-          Logger.logRed("Connection has been closed!") >> Task.raiseError(e)
+        case e: Exception =>
+          Logger.logRed("A connection has been closed!") >> Task.raiseError(e)
     )
   }
 }
@@ -122,13 +122,16 @@ object DispatchTask {
 
 case class DispatchTask(messageQueue: MessageQueue, clientMap: ClientMap) {
   def dispatchTask(): Task[Unit] = {
-    val log = Task { Logger.logRed("Dispatcher ready to go!") } 
-    val dispatch = Task {
-      val (message, socket) = messageQueue.take()
-      dispatchMessage(message, socket)
+    val log = Logger.logRed("Dispatcher ready to go!")
+    def dispatch(): Task[Unit] = {
+      for
+        popped <- Task { messageQueue.take() }
+        (message, socket) = popped
+        _ <- dispatchMessage(message, socket)
+      yield ()
     }.loopForever
-    
-    log >> dispatch
+
+    log >> dispatch()
   }
   
   def dispatchMessage(message: Message, socket: Socket): Task[Unit] = {
@@ -161,13 +164,23 @@ case class DispatchTask(messageQueue: MessageQueue, clientMap: ClientMap) {
     yield ()
   }
   
-  def sendToAll(message: Message): Task[Unit] = Task {
+  def sendToAll(message: Message): Task[Unit] = {
     val senderNick = message.senderID()
-    for (nick, socket) <- clientMap do
-      if senderNick != nick then
-        val out = socket.getOutputStream
-        out.write(message.encode())
-        out.flush()
+    
+    Task.parTraverse(clientMap.toSeq)(tuple => {
+      val (nick, socket) = tuple
+      send(message, nick, socket)
+    }) >> Task.unit
   }
   
+  def send(message: Message, nick: String, socket: Socket): Task[Unit] = {
+    Task {
+      val out = socket.getOutputStream
+      out.write(message.encode())
+      out.flush()
+    }.onErrorHandleWith(_ => Task {
+      clientMap.remove(nick)
+    } >> Logger.logYellow(s"Removed ${nick} from active connections!"))
+  }
+
 }

@@ -25,7 +25,7 @@ case class EventDispatcher(nick: String,
                            outgoingMessageQueue: OutgoingMessageQueue,
                            terminalWriter: TerminalWriter) {
   
-  def asyncDispatch(): Unit = {
+  def asyncDispatch(): Task[Unit] = {
     def dispatch(): Task[Unit] = {
       val event = Task { eventQueue.take() }
       val handle = event.flatMap(event => event match
