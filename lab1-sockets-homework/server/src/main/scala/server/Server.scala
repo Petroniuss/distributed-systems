@@ -6,7 +6,7 @@ import monix.eval.Task
 import monix.execution.Scheduler
 import server.Server.Port
 
-import java.io._
+import java.io.IOException
 import java.net.{DatagramPacket, InetAddress, ServerSocket, Socket}
 import java.nio.ByteBuffer
 import java.util.Queue
@@ -25,6 +25,7 @@ object Server {
   val io = Scheduler.io("server-io-thread")
 
   def apply(): Task[Unit] = {
+    intro()
     val messageQueue = new LinkedBlockingQueue[MessageQueueElement]
     val clientMap = new ConcurrentHashMap[String, Socket].asScala
     
@@ -32,6 +33,16 @@ object Server {
     val listen = ListenTCP(messageQueue)
     val tasks = dispatch :: listen :: Nil
     Task.parSequenceUnordered(tasks).executeOn(io) >> Task.unit
+  }
+  
+  def intro(): Unit = {
+    val color = Console.RED
+    val reset = Console.RESET
+    println(
+      s"""|$color--------------------------------------------------------------------
+          |         ***                    Server running..                ***
+          |--------------------------------------------------------------------${reset}
+          |""".stripMargin)
   }
 }
 
@@ -152,8 +163,16 @@ case class DispatchTask(messageQueue: MessageQueue, clientMap: ClientMap) {
   def handleByeMsg(byeMessage: ByeMessage): Task[Unit] = {
     for 
       _ <- Logger.logYellow(s"${byeMessage.nick} left!") 
-      _ <- Task { clientMap -= byeMessage.nick }
       _ <- sendToAll(byeMessage)
+      _ <- Task {
+        val option = clientMap.get(byeMessage.nick)
+        option match {
+          case Some(socket) =>
+            clientMap -= byeMessage.nick
+            socket.close()
+          case None => ()
+        }
+      }
     yield ()
   }
   

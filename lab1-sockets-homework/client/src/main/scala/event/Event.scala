@@ -1,6 +1,6 @@
 package event
 
-import message.{ChatMessage, Message}
+import message.{ByeMessage, ChatMessage, Message}
 import logger.Logger
 import terminal.TerminalWriter
 import monix.eval.Task
@@ -11,6 +11,8 @@ sealed trait Command
 final case class SendMessage(message: String) extends Command
 final case class SendASCIIArt() extends Command
 final case class LeaveChat() extends Command
+final case class TCPSwitch() extends Command
+final case class UDPSwitch() extends Command
 
 sealed trait Event
 final case class CommandEvent(command: Command) extends Event
@@ -19,11 +21,15 @@ final case class IncomingMessageEvent(message: Message) extends Event
 type EventQueue = LinkedBlockingQueue[Event]
 type OutgoingMessageQueue = LinkedBlockingQueue[Message]
 
+enum Protocol {
+  case TCP, UDP
+}
 
 case class EventDispatcher(nick: String,
                            eventQueue: EventQueue,
                            outgoingMessageQueue: OutgoingMessageQueue,
                            terminalWriter: TerminalWriter) {
+  var protocol = Protocol.TCP
   
   def asyncDispatch(): Task[Unit] = {
     def dispatch(): Task[Unit] = {
@@ -44,8 +50,15 @@ case class EventDispatcher(nick: String,
         val chatMessage = ChatMessage(nick, message)
         outgoingMessageQueue.put(chatMessage)
         ()
+      case LeaveChat() =>
+        val leaveMessage = ByeMessage(nick)
+        outgoingMessageQueue.put(leaveMessage)
+      case TCPSwitch() => 
+        protocol = Protocol.TCP
+      case UDPSwitch() =>
+        protocol = Protocol.UDP
       case SendASCIIArt() => ()
-      case LeaveChat() => ()
+        
     }
   }
   

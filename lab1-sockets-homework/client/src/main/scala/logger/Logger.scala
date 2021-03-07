@@ -23,6 +23,6 @@ object Logger {
   def logF(msg: String, color: String): Task[Unit] = Task {
     val reset = Console.RESET
     val thread = Thread.currentThread().getName
-    println(s"${color}[${thread}]${reset} - $msg") 
+//    println(s"${color}[${thread}]${reset} - $msg") 
   }
 }
