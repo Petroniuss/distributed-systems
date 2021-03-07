@@ -1,0 +1,9 @@
+import client.Chat
+
+object Main {
+
+  def main(args: Array[String]): Unit = {
+    Chat()
+  }
+
+}
