@@ -6,8 +6,8 @@ import monix.eval.Task
 import monix.execution.Scheduler
 import server.Server.Port
 
-import java.io.IOException
-import java.net.{DatagramPacket, InetAddress, ServerSocket, Socket}
+import java.io.{ByteArrayInputStream, DataInputStream, IOException}
+import java.net.{DatagramPacket, DatagramSocket, InetAddress, ServerSocket, Socket}
 import java.nio.ByteBuffer
 import java.util.Queue
 import java.util.concurrent.{ConcurrentHashMap, LinkedBlockingQueue}
@@ -16,9 +16,15 @@ import scala.concurrent.{Future, Promise, blocking}
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-type ClientMap = mutable.Map[String, Socket]
-type MessageQueueElement = (Message, Socket)
-type MessageQueue = LinkedBlockingQueue[MessageQueueElement]
+sealed trait Connection
+case class UDP(inetAddress: InetAddress, port: Int) extends Connection
+case class TCP(socket: Socket) extends Connection
+
+
+type QElement = (Message, Connection)
+type TCPConnectionMap = mutable.Map[String, TCP]
+type UDPPConnectionMap = mutable.Map[String, UDP]
+type MessageQueue = LinkedBlockingQueue[QElement]
 
 object Server {
   val Port = 10232
@@ -26,12 +32,15 @@ object Server {
 
   def apply(): Task[Unit] = {
     intro()
-    val messageQueue = new LinkedBlockingQueue[MessageQueueElement]
-    val clientMap = new ConcurrentHashMap[String, Socket].asScala
+    val messageQueue = new LinkedBlockingQueue[QElement]
+    val tcpConnections = new ConcurrentHashMap[String, TCP].asScala
+    val udpConnections = new ConcurrentHashMap[String, UDP].asScala
     
-    val dispatch = DispatchTask(messageQueue, clientMap)
-    val listen = ListenTCP(messageQueue)
-    val tasks = dispatch :: listen :: Nil
+    val datagramSocket = new DatagramSocket(Port)
+    val dispatch = DispatchTask(messageQueue, tcpConnections, udpConnections, datagramSocket)
+    val listenTcp = ListenTCP(messageQueue)
+    val listenUdp = ListenUDP(datagramSocket, messageQueue)
+    val tasks = dispatch :: listenTcp :: listenUdp :: Nil
     Task.parSequenceUnordered(tasks).executeOn(io) >> Task.unit
   }
   
@@ -105,7 +114,7 @@ case class ReceiveTCPStreamTask(messageQueue: MessageQueue, socket: Socket) {
     val receive = readMessage().flatMap(option => {
       option match
         case Some(msg) =>
-          Task { messageQueue.put((msg, socket)) }
+          Task { messageQueue.put((msg, TCP(socket))) }
         case None =>
           Logger.logYellow("Failed to parse a message!") 
     }).loopForever
@@ -122,84 +131,148 @@ case class ReceiveTCPStreamTask(messageQueue: MessageQueue, socket: Socket) {
   }
 }
 
+object ListenUDP {
+  def apply(socket: DatagramSocket, messageQueue: MessageQueue): Task[Unit] = {
+    new ListenUDP(socket, messageQueue).listen()
+  }
+}
+
+case class ListenUDP(socket: DatagramSocket, messageQueue: MessageQueue) {
+  import Server._
+  
+  val buffer = new Array[Byte](4096)
+  
+  def listen(): Task[Unit] = { 
+    val log = Logger.logYellow(s"Listening on $Port for udp-packets!") 
+    val listenTask = Task {
+      val packet = new DatagramPacket(buffer, buffer.length)
+      socket.receive(packet)
+      
+      val address = packet.getAddress
+      val port = packet.getPort
+      val in = new ByteArrayInputStream(packet.getData(), packet.getOffset(), packet.getLength())
+
+      Message(in) match {
+        case Some(msg) =>
+          messageQueue.put((msg, UDP(address, port)))
+        case None => ()
+      }
+    }.loopForever
+    
+    log >> listenTask 
+  }
+}
+
 /**
  * Handles each message received by any of the io threads.
  */
 object DispatchTask {
-  def apply(messageQueue: MessageQueue, clientMap: ClientMap): Task[Unit] = {
-    new DispatchTask(messageQueue, clientMap).dispatchTask()
+  def apply(messageQueue: MessageQueue, 
+            tcpConnections: TCPConnectionMap, udpConnections: UDPPConnectionMap,
+            datagramSocket: DatagramSocket): Task[Unit] = {
+    new DispatchTask(messageQueue, tcpConnections, udpConnections, datagramSocket).dispatchTask()
   }
 }
 
-case class DispatchTask(messageQueue: MessageQueue, clientMap: ClientMap) {
+case class DispatchTask(messageQueue: MessageQueue,
+                        tcpConnections: TCPConnectionMap, udpConnections: UDPPConnectionMap,
+                        datagramSocket: DatagramSocket) {
+  
   def dispatchTask(): Task[Unit] = {
     val log = Logger.logRed("Dispatcher ready to go!")
     def dispatch(): Task[Unit] = {
       for
         popped <- Task { messageQueue.take() }
-        (message, socket) = popped
-        _ <- dispatchMessage(message, socket)
+        (message, conn) = popped
+        _ <- dispatchMessage(message, conn)
       yield ()
     }.loopForever
 
     log >> dispatch()
   }
   
-  def dispatchMessage(message: Message, socket: Socket): Task[Unit] = {
+  def dispatchMessage(message: Message, connection: Connection): Task[Unit] = {
     message match
-      case joinMsg      : JoinMessage => handleJoinMsg(joinMsg, socket)
-      case byeMessage   : ByeMessage  => handleByeMsg(byeMessage)
-      case chatMessage  : ChatMessage => handleChatMessage(chatMessage)
+      case chatMessage  : ChatMessage => handleChatMessage(chatMessage, connection)
+      case joinMsg      : JoinMessage => handleJoinMsg(joinMsg, connection)
+      case byeMessage   : ByeMessage  => handleByeMsg(byeMessage, connection)
   }
   
-  def handleJoinMsg(joinMessage: JoinMessage, socket: Socket): Task[Unit] = {
+  def handleJoinMsg(joinMessage: JoinMessage, connection: Connection): Task[Unit] = {
     for 
       _ <- Logger.logGreen(s"${joinMessage.nick} joined!")
-      _ <- Task { clientMap += joinMessage.nick -> socket } 
-      _ <- sendToAll(joinMessage)
+      _ <- addConnection(joinMessage.nick, connection)
+      _ <- sendToAll(joinMessage, connection)
     yield ()
   }
   
-  def handleByeMsg(byeMessage: ByeMessage): Task[Unit] = {
+  def addConnection(nick: String, connection: Connection): Task[Unit] = Task {
+    connection match {
+      case udp: UDP => udpConnections += (nick -> udp)
+      case tcp: TCP => tcpConnections += (nick -> tcp)
+    }
+  } >> Task.unit
+  
+  def removeConnection(nick: String): Task[Unit] = Task {
+    val option = tcpConnections.get(nick)
+    option match {
+      case Some(tcp) =>
+        tcpConnections -= nick
+        tcp.socket.close()
+      case None => ()
+    }
+    
+    udpConnections.remove(nick)
+  } >> Task.unit
+
+  def handleByeMsg(byeMessage: ByeMessage, connection: Connection): Task[Unit] = {
     for 
       _ <- Logger.logYellow(s"${byeMessage.nick} left!") 
-      _ <- sendToAll(byeMessage)
-      _ <- Task {
-        val option = clientMap.get(byeMessage.nick)
-        option match {
-          case Some(socket) =>
-            clientMap -= byeMessage.nick
-            socket.close()
-          case None => ()
-        }
-      }
+      _ <- sendToAll(byeMessage, connection)
     yield ()
   }
   
-  def handleChatMessage(chatMessage: ChatMessage): Task[Unit] = {
+  def handleChatMessage(chatMessage: ChatMessage, connection: Connection): Task[Unit] = {
     for 
       _ <- Logger.log(s"${chatMessage.nick} sent message: ${chatMessage.message}!") 
-      _ <- sendToAll(chatMessage)
+      _ <- sendToAll(chatMessage, connection: Connection)
     yield ()
   }
   
-  def sendToAll(message: Message): Task[Unit] = {
-    val senderNick = message.senderID()
-    
-    Task.parTraverse(clientMap.toSeq)(tuple => {
-      val (nick, socket) = tuple
-      send(message, nick, socket)
-    }) >> Task.unit
+  def sendToAll(message: Message, connection: Connection): Task[Unit] = {
+    connection match {
+      case udp: UDP =>
+        Task.parTraverse(udpConnections.values)(udp => {
+          sendOverUDP(message, udp)
+        }) >> Task.unit
+      case TCP(socket) =>
+        Task.parTraverse(tcpConnections.values)(tcp => {
+          sendOverTCP(message, tcp)
+        }) >> Task.unit
+    }
   }
   
-  def send(message: Message, nick: String, socket: Socket): Task[Unit] = {
+  def sendOverUDP(message: Message, udp: UDP): Task[Unit] = {
     Task {
-      val out = socket.getOutputStream
+      val address = udp.inetAddress
+      val port = udp.port;
+      val encoded = message.encode()
+      val packet = new DatagramPacket(encoded, encoded.length, address, port);
+      datagramSocket.send(packet)
+    }.onErrorHandleWith(_ => Task {
+      removeConnection(message.senderID())
+    } >> Logger.logYellow(s"Removed ${message.senderID()} from active connections!"))
+    
+  }
+  
+  def sendOverTCP(message: Message, tcp: TCP): Task[Unit] = {
+    Task {
+      val out = tcp.socket.getOutputStream
       out.write(message.encode())
       out.flush()
     }.onErrorHandleWith(_ => Task {
-      clientMap.remove(nick)
-    } >> Logger.logYellow(s"Removed ${nick} from active connections!"))
+      removeConnection(message.senderID())
+    } >> Logger.logYellow(s"Removed ${message.senderID()} from active connections!"))
   }
 
 }
