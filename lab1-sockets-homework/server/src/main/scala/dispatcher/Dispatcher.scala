@@ -3,7 +3,8 @@ package dispatcher
 import logger.Logger
 import message.{ByeMessage, ChatMessage, JoinMessage, Message}
 import monix.eval.Task
-import server.{MessageQueue, MulticastUDP, Protocol, QElement, TCP, TCPConnectionMap, UDP, UDPPConnectionMap}
+import server.protocol.{MulticastUDP, Protocol, TCP, UDP}
+import server.{MessageQueue, QElement, TCPConnectionMap, UDPPConnectionMap}
 
 import java.util.concurrent.LinkedBlockingQueue
 import scala.collection.mutable
@@ -98,9 +99,9 @@ case class DispatchTask(messageQueue: MessageQueue,
   }
 
   def sendToAll(message: Message, connection: Protocol): Task[Unit] = {
-    connection match {
+    connection match 
       case _: UDP =>
-        Task.parTraverse(udpConnections.values)(udp => {
+        Task.traverse(udpConnections.values)(udp => {
           sendOverUDP(message, udp)
         }) >> Task.unit
       case _: TCP =>
@@ -108,7 +109,6 @@ case class DispatchTask(messageQueue: MessageQueue,
           sendOverTCP(message, tcp)
         }) >> Task.unit
       case _: MulticastUDP => Task.unit 
-    }
   }
 
   def sendOverUDP(message: Message, udp: UDP): Task[Unit] = {
