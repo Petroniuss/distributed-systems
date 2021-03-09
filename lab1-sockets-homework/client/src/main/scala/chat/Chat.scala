@@ -12,19 +12,21 @@ object Chat {
   val terminalReader = TerminalReader()
   val terminalWriter = TerminalWriter()
   val eventQueue = new LinkedBlockingQueue[Event]()
-  val outgoingMessageQueue = new LinkedBlockingQueue[Message]()
+  val tcpMsgQueue = new LinkedBlockingQueue[Message]()
+  val udpMsgQueue = new LinkedBlockingQueue[Message]()
 
   def apply(): Task[Unit] = {
     for  
       _ <- terminalWriter.intro()
       nick <- terminalReader.readLine()
       _ <- terminalWriter.welcome(nick)
-      client = Client(nick, eventQueue, outgoingMessageQueue)
+      client = Client(nick, eventQueue, tcpMsgQueue, udpMsgQueue)
       tcp = client.TCP()
+      udp = client.UDP()
       read = terminalReader.readAsync(eventQueue)
-      dispatcher = EventDispatcher(nick, eventQueue, outgoingMessageQueue, terminalWriter)
+      dispatcher = EventDispatcher(nick, eventQueue, tcpMsgQueue, udpMsgQueue, terminalWriter)
       dispatch = dispatcher.asyncDispatch()
-      seq = tcp :: read :: dispatch :: Nil
+      seq = tcp :: udp :: read :: dispatch :: Nil
       _ <- Task.parSequenceUnordered(seq)
     yield ()
   }

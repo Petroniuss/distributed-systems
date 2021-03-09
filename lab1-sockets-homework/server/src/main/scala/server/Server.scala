@@ -16,12 +16,16 @@ import scala.concurrent.{Future, Promise, blocking}
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-sealed trait Connection
-case class UDP(inetAddress: InetAddress, port: Int) extends Connection
-case class TCP(socket: Socket) extends Connection
+sealed trait Protocol
+case class UDP(inetAddress: InetAddress, port: Int) extends Protocol {
+  override def toString(): String = "UDP"
+}
+case class TCP(socket: Socket) extends Protocol {
+  override def toString(): String = "TCP"
+}
 
 
-type QElement = (Message, Connection)
+type QElement = (Message, Protocol)
 type TCPConnectionMap = mutable.Map[String, TCP]
 type UDPPConnectionMap = mutable.Map[String, UDP]
 type MessageQueue = LinkedBlockingQueue[QElement]
@@ -191,22 +195,27 @@ case class DispatchTask(messageQueue: MessageQueue,
     log >> dispatch()
   }
   
-  def dispatchMessage(message: Message, connection: Connection): Task[Unit] = {
+  def dispatchMessage(message: Message, connection: Protocol): Task[Unit] = {
     message match
       case chatMessage  : ChatMessage => handleChatMessage(chatMessage, connection)
       case joinMsg      : JoinMessage => handleJoinMsg(joinMsg, connection)
       case byeMessage   : ByeMessage  => handleByeMsg(byeMessage, connection)
   }
   
-  def handleJoinMsg(joinMessage: JoinMessage, connection: Connection): Task[Unit] = {
+  def handleJoinMsg(joinMessage: JoinMessage, connection: Protocol): Task[Unit] = {
+    // As we get two join messages it only makes sense to send one to clients..
+    val notifyOthers = connection match 
+      case UDP(inetAddress, port) => Task.unit
+      case TCP(socket) => sendToAll(joinMessage, connection)
+    
     for 
       _ <- Logger.logGreen(s"${joinMessage.nick} joined!")
       _ <- addConnection(joinMessage.nick, connection)
-      _ <- sendToAll(joinMessage, connection)
+      _ <- notifyOthers
     yield ()
   }
   
-  def addConnection(nick: String, connection: Connection): Task[Unit] = Task {
+  def addConnection(nick: String, connection: Protocol): Task[Unit] = Task {
     connection match {
       case udp: UDP => udpConnections += (nick -> udp)
       case tcp: TCP => tcpConnections += (nick -> tcp)
@@ -225,21 +234,21 @@ case class DispatchTask(messageQueue: MessageQueue,
     udpConnections.remove(nick)
   } >> Task.unit
 
-  def handleByeMsg(byeMessage: ByeMessage, connection: Connection): Task[Unit] = {
+  def handleByeMsg(byeMessage: ByeMessage, connection: Protocol): Task[Unit] = {
     for 
       _ <- Logger.logYellow(s"${byeMessage.nick} left!") 
       _ <- sendToAll(byeMessage, connection)
     yield ()
   }
   
-  def handleChatMessage(chatMessage: ChatMessage, connection: Connection): Task[Unit] = {
+  def handleChatMessage(chatMessage: ChatMessage, connection: Protocol): Task[Unit] = {
     for 
-      _ <- Logger.log(s"${chatMessage.nick} sent message: ${chatMessage.message}!") 
-      _ <- sendToAll(chatMessage, connection: Connection)
+      _ <- Logger.log(s"${chatMessage.nick}[${connection.toString}]> '${chatMessage.message}'") 
+      _ <- sendToAll(chatMessage, connection: Protocol)
     yield ()
   }
   
-  def sendToAll(message: Message, connection: Connection): Task[Unit] = {
+  def sendToAll(message: Message, connection: Protocol): Task[Unit] = {
     connection match {
       case udp: UDP =>
         Task.parTraverse(udpConnections.values)(udp => {

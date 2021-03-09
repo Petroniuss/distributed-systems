@@ -43,7 +43,7 @@ case class TerminalWriter() {
     val reset = Console.RESET
     println(
       s"""|$color--------------------------------------------------------------------
-          |         ***                    Hello                ***
+          |         ***                    Client                ***
           |--------------------------------------------------------------------${reset}
           | To join the chat type in your nick!
           | You may use additional commands:

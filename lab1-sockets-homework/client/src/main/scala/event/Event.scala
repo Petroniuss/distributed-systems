@@ -27,19 +27,19 @@ enum Protocol {
 
 case class EventDispatcher(nick: String,
                            eventQueue: EventQueue,
-                           outgoingMessageQueue: OutgoingMessageQueue,
+                           tcpMsgQueue: OutgoingMessageQueue,
+                           udpMsgQueue: OutgoingMessageQueue,
                            terminalWriter: TerminalWriter) {
   var protocol = Protocol.TCP
   
   def asyncDispatch(): Task[Unit] = {
     def dispatch(): Task[Unit] = {
       val event = Task { eventQueue.take() }
-      val handle = event.flatMap(event => event match
+      event.flatMap(event => event match
         case CommandEvent(command) => handleCommand(command)
         case IncomingMessageEvent(message) => handleIncomingMessage(message)
       )
-      handle >> dispatch()
-    }
+    }.loopForever
     
     Logger.logGreen("Dispatcher running!") >> dispatch()
   }
@@ -48,17 +48,23 @@ case class EventDispatcher(nick: String,
     command match {
       case SendMessage(message) => 
         val chatMessage = ChatMessage(nick, message)
-        outgoingMessageQueue.put(chatMessage)
-        ()
+        queueMessage(chatMessage)
       case LeaveChat() =>
         val leaveMessage = ByeMessage(nick)
-        outgoingMessageQueue.put(leaveMessage)
+        queueMessage(leaveMessage)
       case TCPSwitch() => 
         protocol = Protocol.TCP
       case UDPSwitch() =>
         protocol = Protocol.UDP
       case SendASCIIArt() => ()
         
+    }
+  }
+  
+  def queueMessage(message: Message): Unit = {
+    protocol match {
+      case Protocol.TCP => tcpMsgQueue.put(message)
+      case Protocol.UDP => udpMsgQueue.put(message)
     }
   }
   
