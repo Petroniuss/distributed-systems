@@ -1,6 +1,6 @@
 package terminal
 
-import event.{Command, CommandEvent, EventQueue, LeaveChat, SendASCIIArt, SendMessage, TCPSwitch, UDPSwitch}
+import event.{Command, CommandEvent, EventQueue, LeaveChat, MulticastSwitch, SendASCIIArt, SendMessage, TCPSwitch, UDPSwitch}
 import logger.Logger
 import message.{ByeMessage, ChatMessage, JoinMessage, Message}
 import monix.eval.Task
@@ -24,10 +24,11 @@ case class TerminalReader() {
   def parseCommand(): Task[Command] = Task {
     val line = StdIn.readLine()
     line match
-      case udp if udp.matches("!udp") => UDPSwitch()
-      case tcp if tcp.matches("!tcp") => TCPSwitch()
-      case leaveString if leaveString.matches("!leave") => LeaveChat()
-      case asciiString if asciiString.matches("!ascii") => SendASCIIArt()
+      case udp if udp.matches("!udp") => UDPSwitch
+      case tcp if tcp.matches("!tcp") => TCPSwitch
+      case tcp if tcp.matches("!multicast") => MulticastSwitch
+      case leaveString if leaveString.matches("!leave") => LeaveChat
+      case asciiString if asciiString.matches("!ascii") => SendASCIIArt
       case messageString => SendMessage(messageString)
   }
 
@@ -49,10 +50,11 @@ case class TerminalWriter() {
           |--------------------------------------------------------------------${reset}
           | To join the chat type in your nick!
           | You may use additional commands:
-          |    !leave - to leave the chat
-          |    !ascii - to send ascii art
-          |    !tcp   - to switch to TCP protocol
-          |    !udp   - to switch to UDP protocol
+          |    !leave     - to leave the chat
+          |    !ascii     - to send ascii art
+          |    !tcp       - to switch to TCP protocol
+          |    !udp       - to switch to UDP protocol
+          |    !multicast - to switch to UDP multicast
           |""".stripMargin)
   }
 

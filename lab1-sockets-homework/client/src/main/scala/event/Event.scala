@@ -10,10 +10,11 @@ import java.util.concurrent.LinkedBlockingQueue
 
 sealed trait Command
 final case class SendMessage(message: String) extends Command
-final case class SendASCIIArt() extends Command
-final case class LeaveChat() extends Command
-final case class TCPSwitch() extends Command
-final case class UDPSwitch() extends Command
+case object SendASCIIArt extends Command
+case object LeaveChat extends Command
+case object TCPSwitch extends Command
+case object UDPSwitch extends Command
+case object MulticastSwitch extends Command
 
 sealed trait Event
 final case class CommandEvent(command: Command) extends Event
@@ -23,13 +24,14 @@ type EventQueue = LinkedBlockingQueue[Event]
 type OutgoingMessageQueue = LinkedBlockingQueue[Message]
 
 enum Protocol {
-  case TCP, UDP
+  case TCP, UDP, Multicast
 }
 
 case class EventDispatcher(nick: String,
                            eventQueue: EventQueue,
                            tcpMsgQueue: OutgoingMessageQueue,
                            udpMsgQueue: OutgoingMessageQueue,
+                           multicastMsgQueue: OutgoingMessageQueue,
                            terminalWriter: TerminalWriter) {
   var protocol = Protocol.TCP
   
@@ -50,16 +52,18 @@ case class EventDispatcher(nick: String,
       case SendMessage(message) => 
         val chatMessage = ChatMessage(nick, message)
         queueMessage(chatMessage)
-      case LeaveChat() =>
+      case LeaveChat =>
         val leaveMessage = ByeMessage(nick)
         queueMessage(leaveMessage)
-      case TCPSwitch() => 
-        protocol = Protocol.TCP
-      case UDPSwitch() =>
-        protocol = Protocol.UDP
-      case SendASCIIArt() => 
+      case SendASCIIArt =>
         val asciiMessage = ChatMessage(nick, pickOne())
         queueMessage(asciiMessage)
+      case TCPSwitch => 
+        protocol = Protocol.TCP
+      case UDPSwitch =>
+        protocol = Protocol.UDP
+      case MulticastSwitch =>
+        protocol = Protocol.Multicast
     }
   }
   
@@ -67,6 +71,7 @@ case class EventDispatcher(nick: String,
     protocol match {
       case Protocol.TCP => tcpMsgQueue.put(message)
       case Protocol.UDP => udpMsgQueue.put(message)
+      case Protocol.Multicast => multicastMsgQueue.put(message)
     }
   }
   

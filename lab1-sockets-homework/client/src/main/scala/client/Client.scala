@@ -8,18 +8,21 @@ import monix.eval.Task
 import monix.execution.{CancelableFuture, Scheduler}
 
 import java.io.{BufferedInputStream, ByteArrayInputStream, IOException}
-import java.net.{DatagramPacket, DatagramSocket, InetAddress, Socket, UnknownHostException}
+import java.net.{DatagramPacket, DatagramSocket, InetAddress, InetSocketAddress, MulticastSocket, Socket, UnknownHostException}
 import java.util.concurrent.LinkedBlockingQueue
 import scala.concurrent.Future
 
 object Server {
   val Port = 10232
+  val MulticastPort = 10323
+  val GroupAddress = "230.0.0.0"
 }
 
 case class Client(nick: String,
                   eventQueue: EventQueue,
                   tcpMsgQueue: OutgoingMessageQueue,
-                  udpMsgQueue: OutgoingMessageQueue) {
+                  udpMsgQueue: OutgoingMessageQueue,
+                  multicastMsgQueue: OutgoingMessageQueue) {
   val io = Scheduler.io("client-io-thread")
   
   def TCP(): Task[Unit] = {
@@ -43,6 +46,17 @@ case class Client(nick: String,
       Logger.logGreen("UDP client!") >> Task.parSequenceUnordered(taskSeq).executeOn(io) >> Task.unit
     })
   }
+  
+  def Multicast(): Task[Unit] = {
+    val multicastClient = MulticastClient(nick, eventQueue, multicastMsgQueue)
+    multicastClient.connect().flatMap(socket => {
+      val readAsync = multicastClient.readAsync(socket)
+      val writeAsync = multicastClient.writeAsync(socket)
+      val taskSeq = readAsync :: writeAsync :: Nil
+
+      Logger.logGreen("Multicast client!") >> Task.parSequenceUnordered(taskSeq).executeOn(io) >> Task.unit
+    })
+  }
 }
 
 case class TCPClient(nick: String, 
@@ -59,7 +73,7 @@ case class TCPClient(nick: String,
       case exception: IOException =>
         Logger.logRed("Failed to connect to the server :/")
         throw exception
-  } <* Logger.logGreen("Socket created!")
+  } <* Logger.logGreen("TCP Socket created!")
   
   def readAsync(socket: Socket): Task[Unit] = {
     val in = socket.getInputStream
@@ -107,10 +121,10 @@ case class UDPClient(nick: String,
     socket
   }.onErrorHandleWith(ex => {
     Logger.logRed("Failed to connect to the server :/") >> Task.raiseError(ex)
-  }) <* Logger.logGreen("Udp Socket created!")
+  }) <* Logger.logGreen("UDP Socket created!")
 
   def readAsync(socket: DatagramSocket): Task[Unit] = {
-    val buffer = new Array[Byte](4096)
+    val buffer = new Array[Byte](16364)
     
     def readTask(): Task[Unit] = Task {
       val packet = new DatagramPacket(buffer, buffer.length)
@@ -131,9 +145,56 @@ case class UDPClient(nick: String,
       val encoded = message.encode()
       val packet = new DatagramPacket(encoded, encoded.length, addr, port)
       socket.send(packet)
-    }.loopForever
+    }.onErrorHandleWith(ex => Logger.logRed(ex.toString)).loopForever
 
     Logger.logRed("Async udp-writer ready!") >> writeTask()
   }
 
 }
+
+
+case class MulticastClient(nick: String,
+                     eventQueue: EventQueue,
+                     multicastMsgQueue: OutgoingMessageQueue) {
+  import Server._
+  val group: InetAddress = InetAddress.getByName(GroupAddress)
+  val socketAddress = new InetSocketAddress(MulticastPort)
+
+  def connect(): Task[MulticastSocket] = Task {
+    val socket = new MulticastSocket(socketAddress)
+    socket.setReuseAddress(true)
+    socket.joinGroup(group)
+    socket
+  }.onErrorHandleWith(ex => {
+    Logger.logRed("Failed to join to multicast group :/") >> Task.raiseError(ex)
+  }) <* Logger.logGreen("Joined to multicast group!")
+
+  def readAsync(socket: MulticastSocket): Task[Unit] = {
+    val buffer = new Array[Byte](16364)
+
+    def readTask(): Task[Unit] = Task {
+      val packet = new DatagramPacket(buffer, buffer.length)
+      socket.receive(packet)
+      val in = new ByteArrayInputStream(packet.getData(), packet.getOffset(), packet.getLength())
+      Message(in).map(msg => IncomingMessageEvent(msg)) match
+        case Some(event) =>
+          eventQueue.add(event); ()
+        case None => ()
+    }.loopForever
+
+    Logger.logYellow("Async multicast-reader is up!") >> readTask()
+  }
+
+  def writeAsync(socket: MulticastSocket): Task[Unit] = {
+    def writeTask(): Task[Unit] = Task {
+      val message = multicastMsgQueue.take()
+      val encoded = message.encode()
+      val packet = new DatagramPacket(encoded, encoded.length, group, MulticastPort)
+      socket.send(packet)
+    }.onErrorHandleWith(ex => Logger.log(ex.getMessage) >> Task.raiseError(ex)).loopForever
+
+    Logger.logRed("Async udp-writer ready!") >> writeTask()
+  }
+
+}
+
