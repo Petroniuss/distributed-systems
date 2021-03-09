@@ -6,6 +6,7 @@ import message.{ByeMessage, ChatMessage, JoinMessage, Message}
 import monix.eval.Task
 
 import scala.io.StdIn
+import scala.util.Random
 
 case class TerminalReader() {
 
@@ -37,6 +38,7 @@ case class TerminalReader() {
 
 
 case class TerminalWriter() {
+  val random = new Random()
 
   def intro(): Task[Unit] = Task {
     val color = Console.RED
@@ -83,9 +85,10 @@ case class TerminalWriter() {
   }
 
   def pickColor(who: String): String = {
-    who match
-      case info if info == "info" => Console.BLUE
-      case other => Console.YELLOW
+    val colors = Console.YELLOW :: Console.BLUE :: Console.RED :: Console.GREEN :: Nil
+    colors(random.nextInt(colors.length))    
   }
 
 }
+
+

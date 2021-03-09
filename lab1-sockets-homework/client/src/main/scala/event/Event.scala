@@ -2,8 +2,9 @@ package event
 
 import message.{ByeMessage, ChatMessage, Message}
 import logger.Logger
-import terminal.TerminalWriter
+import terminal.{ASCII, TerminalWriter}
 import monix.eval.Task
+import terminal.ASCII._
 
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -56,8 +57,9 @@ case class EventDispatcher(nick: String,
         protocol = Protocol.TCP
       case UDPSwitch() =>
         protocol = Protocol.UDP
-      case SendASCIIArt() => ()
-        
+      case SendASCIIArt() => 
+        val asciiMessage = ChatMessage(nick, pickOne())
+        queueMessage(asciiMessage)
     }
   }
   
