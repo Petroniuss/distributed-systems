@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/Users/petroniuss/Personal/Studies/DistributedSystems/lab2-message-brokers/**/*.jar"
+    ]
+}
