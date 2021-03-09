@@ -28,7 +28,7 @@ object Chat {
       read = terminalReader.readAsync(eventQueue)
       dispatcher = EventDispatcher(nick, eventQueue, tcpMsgQueue, udpMsgQueue, multicastMsgQueue, terminalWriter)
       dispatch = dispatcher.asyncDispatch()
-      seq = tcp :: udp :: read :: multicast ::dispatch :: Nil
+      seq = tcp :: udp :: read :: multicast :: dispatch :: Nil
       _ <- Task.parSequenceUnordered(seq)
     yield ()
   }
