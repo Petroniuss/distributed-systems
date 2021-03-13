@@ -1,0 +1,11 @@
+Ja, Patryk Wojtyczek, oświadczam, ze samodzielnie zrobiłem wysłane zadania.
+
+Środowisko:
+    - MacOS
+    - JavaSE 15
+    - Scala 3
+    - InteliJ
+
+Do uruchomienia programu wystarczy java8+ i sbt (dowolna wersja - pobierze wszystkie zależności)
+i komenda `sbt run`.
+

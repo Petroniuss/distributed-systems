@@ -3,14 +3,15 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class Z1_Producer {
+public class MyProducer {
 
     public static void main(String[] argv) throws Exception {
 
         // info
-        System.out.println("Z1 PRODUCER");
+        System.out.println("[producer]> running!");
 
         // connection & channel
         ConnectionFactory factory = new ConnectionFactory();
@@ -18,18 +19,23 @@ public class Z1_Producer {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
+        final InputStreamReader in = new InputStreamReader(System.in);
+        final BufferedReader reader = new BufferedReader(in);
+
         // queue
         String QUEUE_NAME = "queue1";
         channel.queueDeclare(QUEUE_NAME, false, false, false, null);        
 
-        // producer (publish msg)
-        String message = "Hello world!";
 
-        channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-        System.out.println("Sent: " + message);
+        while (true ) {
+            readPublish(reader, channel, QUEUE_NAME);
+        }
+    }
 
-        // close
-        channel.close();
-        connection.close();
+
+    private static void readPublish(BufferedReader reader, Channel channel, String queueName) throws IOException {
+        final String message = reader.readLine();
+        channel.basicPublish("", queueName, null, message.getBytes());
+        System.out.println("[Producer]> sent: " + message);
     }
 }
