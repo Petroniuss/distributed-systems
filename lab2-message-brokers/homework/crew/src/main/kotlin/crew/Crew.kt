@@ -39,40 +39,35 @@ class Crew {
         val factory = ConnectionFactory()
         connection = factory.newConnection("amqp://guest:guest@localhost:5672/")
 
+        // order supplies
         for (orderType in orderTypes) {
-            connection.createChannel().use { channel ->
-                val exchangeName = RabbitMQ.EXCHANGE
-                val queueName = RabbitMQ.createOrderQueueName(orderType)
-                val routingKey = RabbitMQ.createOrderRoutingKey(orderType)
-
+            val meta = RabbitMQ.createOrderQ(orderType)
+            RabbitMQ.declareQueue(meta, connection).use { channel ->
+                val msgKey = RabbitMQ.createOrderMessageKey(orderType)
                 val orderDate = LocalDateTime.now()
                 val createOrderMsg = OrderMessage(name, id, orderType, orderDate)
 
-                channel.exchangeDeclare(exchangeName, TOPIC)
-                channel.queueDeclare(queueName, false, false, true, null)
-                channel.queueBind(queueName, exchangeName, routingKey)
-                channel.basicPublish(exchangeName, routingKey, null, createOrderMsg.serialize())
+                channel.basicPublish(RabbitMQ.EXCHANGE, msgKey, null, createOrderMsg.serialize())
                 CLI.info("Ordered $orderType")
             }
         }
 
         val header = listOf("Ordered supplies")
-        val ordered = orderTypes.map { it.toString() }
-            .map { listOf(it) }
+        val ordered = orderTypes.map { it.toString() }.map { listOf(it) }
         CLI.table(header, ordered)
 
-        val channel = connection.createChannel()
-        val exchangeName = RabbitMQ.EXCHANGE
-        val queueName = RabbitMQ.receiveOrderQueueName(name, id)
-        val routingKey = RabbitMQ.receiveOrderRoutingKey(name, id)
+        // consume responses
+        val meta = RabbitMQ.receiveOrderQ(name, id)
+        val channel = RabbitMQ.declareQueue(meta, connection)
+        channel.basicConsume(meta.queueName, ReceiveProcessedOrder(this, channel), ReceiveCancelled())
+        CLI.success("Waiting for supplies.. queue: ${meta.queueName}")
 
-        channel.queueDeclare(queueName, false, false, true, null)
-        channel.queueBind(queueName, exchangeName, routingKey)
-        channel.basicConsume(queueName, ReceiveProcessedOrder(this, channel), ReceiveCancelled())
-        CLI.success("Waiting for supplies.. queue: $queueName")
+        // consume messages from admin
+        RabbitMQ.declareConsumerFromAdmin(RabbitMQ.adminToCrewQ(name), connection)
+        RabbitMQ.declareConsumerFromAdmin(RabbitMQ.adminToAllQ(name), connection)
     }
 
-    fun progress(processedOrderMessage: ProcessedOrderMessage, channel: Channel) {
+    fun progress(processedOrderMessage: ProcessedOrderMessage) {
         CLI.info("$processedOrderMessage")
         val receivedDate = LocalDateTime.now()
         this.left -= 1
@@ -94,7 +89,8 @@ class ReceiveProcessedOrder(
 
     override fun handle(consumerTag: String?, delivery: Delivery) {
         val processedOrderMessage = ProcessedOrderMessage.deserialize(delivery.body)
-        crew.progress(processedOrderMessage, channel)
+        crew.progress(processedOrderMessage)
+
         val deliveryTag = delivery.envelope.deliveryTag
         channel.basicAck(deliveryTag, true)
     }

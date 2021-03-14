@@ -63,7 +63,7 @@ class ReceiveOrder(
         val orderId = UUID.randomUUID().toString()
         val receivedDate = LocalDateTime.now()
 
-        CLI.info("Received order from: '$crewName', order: '$orderType'")
+        CLI.warning("$createOrderMessage")
 
         val processedDate = LocalDateTime.now()
         val message = ProcessedOrderMessage(
@@ -79,7 +79,7 @@ class ReceiveOrder(
         // ack
         val deliveryTag = delivery.envelope.deliveryTag
         channel.basicAck(deliveryTag, true)
-        CLI.info("Processed order: '$orderType' for: '$crewName'")
+        CLI.success("Processed order: '$orderType' for: '$crewName'")
     }
 }
 

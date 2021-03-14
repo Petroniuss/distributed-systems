@@ -118,7 +118,7 @@ class ReceiveFromAdmin(
 
     override fun handle(consumerTag: String?, delivery: Delivery) {
         val adminMessage = AdminMessage.deserialize(delivery.body)
-        CLI.info("Admin - '${adminMessage.msg}'")
+        CLI.info("$adminMessage")
 
         val deliveryTag = delivery.envelope.deliveryTag
         channel.basicAck(deliveryTag, true)

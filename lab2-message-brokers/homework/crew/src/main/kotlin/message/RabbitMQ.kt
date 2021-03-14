@@ -34,7 +34,6 @@ object RabbitMQ {
 
     // -------- Admin --------
     // admin listening
-    // todo declare queues
 
     data class QueueMeta(
         val queueName: String,
@@ -54,7 +53,6 @@ object RabbitMQ {
     }
 
     // admin sending
-    // todo declare queues and create consumers
     fun adminToCrewQ(crewName: String): QueueMeta {
         val qName = "$ADMIN_CREW_PREFIX.$crewName"
         val key = "$ADMIN_CREW_PREFIX.#"
@@ -120,7 +118,7 @@ class ReceiveFromAdmin(
 
     override fun handle(consumerTag: String?, delivery: Delivery) {
         val adminMessage = AdminMessage.deserialize(delivery.body)
-        CLI.info("Admin - '${adminMessage.msg}'")
+        CLI.success("$adminMessage")
 
         val deliveryTag = delivery.envelope.deliveryTag
         channel.basicAck(deliveryTag, true)
