@@ -1,20 +1,17 @@
 package supplier
 
 import cli.CLI
-import com.github.ajalt.mordant.animation.textAnimation
 import com.rabbitmq.client.*
-import com.rabbitmq.client.BuiltinExchangeType.*
 import message.OrderMessage
 import message.OrderType
 import message.ProcessedOrderMessage
 import message.RabbitMQ
-import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.collections.ArrayList
 
 class Supplier {
-    private val orderTypes: List<OrderType>
+    private val orderTypes: Set<OrderType>
     private val connection: Connection
     private val name: String
 
@@ -28,29 +25,33 @@ class Supplier {
             keywords.add(keyword)
         } while (keyword.isNotBlank())
 
-        orderTypes = OrderType.match(keywords)
+        orderTypes = OrderType.match(keywords).toSet()
         CLI.success("Matched: $orderTypes")
 
         val factory = ConnectionFactory()
         connection = factory.newConnection("amqp://guest:guest@localhost:5672/")
 
-        for (orderType in orderTypes) {
-            val channel = connection.createChannel()
-            val exchangeName = RabbitMQ.EXCHANGE
-            val queueName = RabbitMQ.createOrderQueueName(orderType)
-            val routingKey = RabbitMQ.createOrderRoutingKey(orderType)
+        // declare admin queue
+        RabbitMQ.declareQueue(RabbitMQ.adminFromSuppliersQ(), connection)
 
-            channel.exchangeDeclare(exchangeName, TOPIC)
-            channel.queueDeclare(queueName, false, false, true, null)
-            channel.queueBind(queueName, exchangeName, routingKey)
-            channel.basicConsume(queueName, ReceiveOrder(connection, name), SupplierCancelCallback())
+        // consumers for supplied orders
+        for (orderType in orderTypes) {
+            val meta = RabbitMQ.createOrderQ(orderType)
+            val channel = RabbitMQ.declareQueue(meta, connection)
+
+            channel.basicConsume(meta.queueName, ReceiveOrder(channel, connection, name), SupplierCancelCallback())
         }
+
+        // consumer for admin messages
+        RabbitMQ.declareConsumerFromAdmin(RabbitMQ.adminToSupplierQ(name), connection)
+        RabbitMQ.declareConsumerFromAdmin(RabbitMQ.adminToAllQ(name), connection)
 
         CLI.success("Waiting for orders...")
     }
 }
 
 class ReceiveOrder(
+    private val channel: Channel,
     private val connection: Connection,
     private val supplierName: String): DeliverCallback {
 
@@ -62,29 +63,23 @@ class ReceiveOrder(
         val orderId = UUID.randomUUID().toString()
         val receivedDate = LocalDateTime.now()
 
-        val queueName = RabbitMQ.receiveOrderQueueName(crewName, crewId)
         CLI.info("Received order from: '$crewName', order: '$orderType'")
 
-        connection.createChannel().use { channel ->
-            val routingKey = RabbitMQ.receiveOrderRoutingKey(crewName, crewId)
+        val processedDate = LocalDateTime.now()
+        val message = ProcessedOrderMessage(
+            crewName, supplierName,
+            orderType, orderId,
+            receivedDate, processedDate).serialize()
 
-            channel.queueDeclare(queueName, false, false, true, null)
-            channel.queueBind(queueName, RabbitMQ.EXCHANGE, routingKey)
+        // publish
+        val meta = RabbitMQ.receiveOrderQ(crewName, crewId)
+        val msgKey = RabbitMQ.receiveOrderMessageKey(crewName, crewId)
+        RabbitMQ.publishMessage(meta, connection, msgKey, message)
 
-            val processedDate = LocalDateTime.now()
-            val message = ProcessedOrderMessage(
-                    crewName, crewId,
-                    orderType, orderId,
-                    receivedDate, processedDate)
-
-            channel.basicPublish(
-                RabbitMQ.EXCHANGE,
-                routingKey,
-                null,
-                message.serialize()
-            )
-            CLI.info("Handled order for: '$crewName', order: '$orderType'")
-        }
+        // ack
+        val deliveryTag = delivery.envelope.deliveryTag
+        channel.basicAck(deliveryTag, true)
+        CLI.info("Processed order: '$orderType' for: '$crewName'")
     }
 }
 

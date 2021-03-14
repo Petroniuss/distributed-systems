@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.system.exitProcess
 
 class Crew {
     private val connection: Connection
@@ -51,6 +52,7 @@ class Crew {
                 channel.queueDeclare(queueName, false, false, true, null)
                 channel.queueBind(queueName, exchangeName, routingKey)
                 channel.basicPublish(exchangeName, routingKey, null, createOrderMsg.serialize())
+                CLI.info("Ordered $orderType")
             }
         }
 
@@ -83,6 +85,7 @@ class Crew {
             CLI.table(header, rows)
         }
     }
+
 }
 
 class ReceiveProcessedOrder(
@@ -92,12 +95,14 @@ class ReceiveProcessedOrder(
     override fun handle(consumerTag: String?, delivery: Delivery) {
         val processedOrderMessage = ProcessedOrderMessage.deserialize(delivery.body)
         crew.progress(processedOrderMessage, channel)
+        val deliveryTag = delivery.envelope.deliveryTag
+        channel.basicAck(deliveryTag, true)
     }
 }
 
 class ReceiveCancelled(): CancelCallback{
     override fun handle(consumerTag: String?) {
-        CLI.warning("Canceled..")
+        CLI.warning("Finished.")
     }
 }
 

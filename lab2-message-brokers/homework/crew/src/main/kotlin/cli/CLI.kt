@@ -1,11 +1,7 @@
 package cli
 
-import com.github.ajalt.mordant.animation.ProgressAnimation
-import com.github.ajalt.mordant.animation.progressAnimation
 import com.github.ajalt.mordant.markdown.Markdown
-import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.rendering.TextColors.*
-import com.github.ajalt.mordant.table.TableBuilder
 import com.github.ajalt.mordant.table.table
 import com.github.ajalt.mordant.terminal.Terminal
 
@@ -28,6 +24,7 @@ object CLI {
         val tbl = table {
             header {
                 rowFrom(header)
+                style(red, bold = true)
             }
             body {
                 for (_row in rows) {
@@ -37,18 +34,6 @@ object CLI {
         }
         terminal.println(tbl)
     }
-
-    fun progressBar(): ProgressAnimation {
-        return terminal.progressAnimation {
-            text("processing orders...")
-            percentage()
-            progressBar()
-            completed()
-            speed("orders/s")
-            timeRemaining()
-        }
-    }
-
 
     fun prompt(msg: String): String {
         terminal.print("$actionEmoji-$msg>", promptStyle);

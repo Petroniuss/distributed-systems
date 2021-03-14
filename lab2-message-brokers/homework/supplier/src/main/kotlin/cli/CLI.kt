@@ -1,14 +1,14 @@
 package cli
 
 import com.github.ajalt.mordant.markdown.Markdown
-import com.github.ajalt.mordant.rendering.TextColors
 import com.github.ajalt.mordant.rendering.TextColors.*
+import com.github.ajalt.mordant.table.table
 import com.github.ajalt.mordant.terminal.Terminal
 
 
 object CLI {
     private const val introMarkdownFilename = "/intro.md"
-    val terminal = Terminal()
+    private val terminal = Terminal()
 
     private val promptStyle = yellow
     private val infoStyle = blue
@@ -19,6 +19,21 @@ object CLI {
     private const val warningEmoji = "\uD83D\uDCD9"
     private const val okEmoji = "\uD83D\uDCD7"
     private const val coolEmoji = "\uD83D\uDE0E"
+
+    fun table(header: List<String> , rows: List<List<String>>): Unit {
+        val tbl = table {
+            header {
+                rowFrom(header)
+                style(red, bold = true)
+            }
+            body {
+                for (_row in rows) {
+                    rowFrom( _row )
+                }
+            }
+        }
+        terminal.println(tbl)
+    }
 
     fun prompt(msg: String): String {
         terminal.print("$actionEmoji-$msg>", promptStyle);

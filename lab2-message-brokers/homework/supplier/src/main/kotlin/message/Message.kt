@@ -50,7 +50,22 @@ data class ProcessedOrderMessage(
             return Json.decodeFromString(json)
         }
     }
+}
 
+@Serializable
+data class AdminMessage(
+    val msg: String
+) {
+    fun serialize(): ByteArray {
+        return Json.encodeToString(this).toByteArray()
+    }
+
+    companion object {
+        fun deserialize(bytes: ByteArray): AdminMessage {
+            val json = String(bytes, StandardCharsets.UTF_8)
+            return Json.decodeFromString(json)
+        }
+    }
 }
 
 

@@ -25,6 +25,10 @@ dependencies {
     implementation(group= "org.slf4j", name= "slf4j-simple", version= "1.7.30")
 }
 
+tasks.getByName<JavaExec>("run") {
+    standardInput = System.`in`
+}
+
 tasks.test {
     useJUnitPlatform()
 }
