@@ -5,16 +5,23 @@ import com.rabbitmq.client.*
 import com.rabbitmq.client.BuiltinExchangeType.*
 import message.OrderMessage
 import message.OrderType
+import message.ProcessedOrderMessage
+import message.RabbitMQ
 import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
+import java.util.*
+import kotlin.collections.ArrayList
 
 class Supplier {
     private val orderTypes: List<OrderType>
     private val connection: Connection
+    private val name: String
 
     init {
         CLI.displayIntro()
         val keywords = ArrayList<String>()
 
+        name = CLI.prompt("Enter supplier name:")
         do {
             val keyword = CLI.prompt("Enter keyword:")
             keywords.add(keyword)
@@ -28,34 +35,48 @@ class Supplier {
 
         for (orderType in orderTypes) {
             val channel = connection.createChannel()
-            val exchangeName = OrderType.exchange
-            val queueName = orderType.queueName
-            val routingKey = orderType.routingKey
+            val exchangeName = RabbitMQ.EXCHANGE
+            val queueName = RabbitMQ.createOrderQueueName(orderType)
+            val routingKey = RabbitMQ.createOrderRoutingKey(orderType)
 
             channel.exchangeDeclare(exchangeName, TOPIC)
             channel.queueDeclare(queueName, false, false, true, null)
             channel.queueBind(queueName, exchangeName, routingKey)
-            channel.basicConsume(queueName, ReceiveOrder(connection), SupplierCancelCallback())
+            channel.basicConsume(queueName, ReceiveOrder(connection, name), SupplierCancelCallback())
         }
     }
 }
 
-class ReceiveOrder(private val connection: Connection): DeliverCallback {
-    override fun handle(consumerTag: String?, delivery: Delivery) {
-        val orderMessage = OrderMessage.deserialize(delivery.body)
-        CLI.info("Received order from: '${orderMessage.clientName}', order: '${orderMessage.orderType}'")
+class ReceiveOrder(
+    private val connection: Connection,
+    private val supplierName: String): DeliverCallback {
 
-        // todo process order and send ack to client
+    override fun handle(consumerTag: String?, delivery: Delivery) {
+        val createOrderMessage = OrderMessage.deserialize(delivery.body)
+        val crewName = createOrderMessage.crewName
+        val crewId = createOrderMessage.crewId
+        val orderType = createOrderMessage.orderType
+        val orderId = UUID.randomUUID().toString()
+        val receivedDate = LocalDateTime.now()
+
+        val queueName = RabbitMQ.receiveOrderQueueName(crewName, crewId)
+        CLI.info("Received order from: '$crewName', order: '$orderType'")
+
         connection.createChannel().use { channel ->
-            channel.queueDeclare("test_queue", false, false, false, null)
-            val message = "Hello World!"
+            channel.queueDeclare(queueName, false, false, false, null)
+            val processedDate = LocalDateTime.now()
+            val message = ProcessedOrderMessage(
+                    crewName, crewId,
+                    orderType, orderId,
+                    receivedDate, processedDate)
+            val routingKey = RabbitMQ.receiveOrderRoutingKey(crewName, crewId)
+
             channel.basicPublish(
-                "",
-                "",
+                RabbitMQ.EXCHANGE,
+                routingKey,
                 null,
-                message.toByteArray(StandardCharsets.UTF_8)
+                message.serialize()
             )
-            println(" [x] Sent '$message'")
         }
     }
 }
