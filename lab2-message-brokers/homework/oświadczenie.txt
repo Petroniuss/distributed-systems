@@ -1,0 +1,11 @@
+Ja, Patryk Wojtyczek, oświadczam, ze samodzielnie zrobiłem wysłane zadania.
+
+Środowisko:
+    - MacOS
+    - JavaSE 15
+    - Kotlin 1.41
+    - InteliJ
+
+Do uruchomienia każdego programu wystarczy java8+ i gradle (dowolna wersja - pobierze wszystkie zależności)
+i komenda `./gradlew run` w korzeniu poszczególnego projektu.
+

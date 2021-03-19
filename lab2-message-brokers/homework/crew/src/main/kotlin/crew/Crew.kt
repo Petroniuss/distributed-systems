@@ -108,16 +108,17 @@ data class ProcessedOrder(val processedOrderMessage: ProcessedOrderMessage,
 
     fun toRow(): List<String> {
         val orderType = processedOrderMessage.orderType.toString()
+        val supplierName = processedOrderMessage.supplierName
         val orderId = processedOrderMessage.orderId
         val processedDate = processedOrderMessage.processedDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         val supplierReceivedDate = processedOrderMessage.receivedDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         val receivedDate = crewReceivedDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-        return listOf(orderType, orderId, supplierReceivedDate, processedDate, receivedDate)
+        return listOf(orderType, supplierName, orderId, supplierReceivedDate, processedDate, receivedDate)
     }
 
     companion object {
         fun header(): List<String> {
-            return listOf("order type", "order id", "supplier received date", "processed date", "crew received date")
+            return listOf("order type", "supplier name", "order id", "supplier received date", "processed date", "crew received date")
         }
     }
 
