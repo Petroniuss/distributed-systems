@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="z-watcher [file:/Users/petroniuss/Studies/DistributedSystems/lab3-zookeeper/homework/z-watcher/]" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_15">
+    <output url="file://$MODULE_DIR$/../../target/scala-3.0.0-RC2/classes" />
+    <output-test url="file://$MODULE_DIR$/../../target/scala-3.0.0-RC2/test-classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../..">
+      <sourceFolder url="file://$MODULE_DIR$/../../src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/test/scala" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/../../target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="sbt: io.monix:implicitbox_2.13:0.2.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.monix:monix-catnap_2.13:3.3.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.monix:monix-eval_2.13:3.3.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.monix:monix-execution_2.13:3.3.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.monix:monix-internal-jctools_2.13:3.3.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.monix:monix-java_2.13:3.3.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.monix:monix-reactive_2.13:3.3.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.monix:monix-tail_2.13:3.3.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.monix:monix_2.13:3.3.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.netty:netty-buffer:4.1.59.Final:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.netty:netty-codec:4.1.59.Final:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.netty:netty-common:4.1.59.Final:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.netty:netty-handler:4.1.59.Final:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.netty:netty-resolver:4.1.59.Final:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.netty:netty-transport-native-epoll:4.1.59.Final:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.netty:netty-transport-native-unix-common:4.1.59.Final:jar" level="project" />
+    <orderEntry type="library" name="sbt: io.netty:netty-transport:4.1.59.Final:jar" level="project" />
+    <orderEntry type="library" name="sbt: log4j:log4j:1.2.17:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.logging.log4j:log4j-api:2.14.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.logging.log4j:log4j-core:2.14.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.yetus:audience-annotations:0.12.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.zookeeper:zookeeper-jute:3.7.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.zookeeper:zookeeper:3.7.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.reactivestreams:reactive-streams:1.0.3:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.5:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala3-library_3.0.0-RC2:3.0.0-RC2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.slf4j:slf4j-api:1.7.30:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.slf4j:slf4j-log4j12:1.7.30:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.typelevel:cats-core_2.13:2.4.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.typelevel:cats-effect_2.13:2.1.4:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.typelevel:cats-kernel_2.13:2.4.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.typelevel:simulacrum-scalafix-annotations_2.13:0.5.4:jar" level="project" />
+  </component>
+</module>
