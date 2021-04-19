@@ -2,7 +2,7 @@ package dispatcher
 
 import akka.actor.TypedActor.self
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector}
+import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector, SupervisorStrategy}
 import dispatcher.Dispatcher.Command.{SatelliteStatusQuery, Timeout, WrappedSatelliteResponse}
 import dispatcher.Dispatcher._
 import satellite.Satellite.Response.StatusResponse
@@ -13,6 +13,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
 object Dispatcher {
+  val blockingDispatcher = DispatcherSelector.fromConfig("my-blocking-dispatcher")
+
   enum Command {
     case SatelliteStatusQuery(queryId: String,
                               firstSatelliteIndex: Int,
@@ -44,8 +46,9 @@ object Dispatcher {
     Behaviors.setup(context => {
       val blockingDispatcher = DispatcherSelector.fromConfig("my-blocking-dispatcher")
 
-      val refs = Range(100, 200).toList
-        .map(idx => context.spawn(Satellite(idx), s"satellite.Satellite-$idx", blockingDispatcher))
+      val refs = Range(100, 200)
+        .toList
+        .map(spawnSatellite(context, _))
 
       val responseMapper = context.messageAdapter[Satellite.Response](response =>
         WrappedSatelliteResponse(response)
@@ -54,6 +57,14 @@ object Dispatcher {
       val mempty = State(Map.empty)
       new Dispatcher(refs, responseMapper).dispatch(mempty)
     })
+  }
+
+  def spawnSatellite(context: ActorContext[Command], satelliteIndex: Int): ActorRef[Satellite.Command] = {
+    val supervised = Behaviors
+      .supervise(Satellite(satelliteIndex))
+      .onFailure[Exception](SupervisorStrategy.resume)
+
+    context.spawn(supervised, s"satellite.Satellite-$satelliteIndex", blockingDispatcher)
   }
 
   def constructNewQueryState(state: QueryState, satelliteIndex: Int, status: Status): QueryState = {

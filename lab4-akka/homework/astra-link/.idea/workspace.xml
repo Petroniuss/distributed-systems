@@ -5,9 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d8b2537c-7e2f-46a6-b5d3-bb8bea6aa41b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.conf" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Main.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/dispatcher/Dispatcher.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/dispatcher/Dispatcher.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -157,7 +154,7 @@
       <workItem from="1618821773889" duration="3238000" />
       <workItem from="1618826137293" duration="7037000" />
       <workItem from="1618835880440" duration="52000" />
-      <workItem from="1618855815162" duration="7624000" />
+      <workItem from="1618855815162" duration="8029000" />
     </task>
     <servers />
   </component>
