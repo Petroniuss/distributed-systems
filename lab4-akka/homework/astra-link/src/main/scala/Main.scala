@@ -1,7 +1,10 @@
 import akka.NotUsed
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorSystem, Behavior, DispatcherSelector, PostStop, Signal}
+import dispatcher.Dispatcher
+import station.Station
 
+import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.Random
 
@@ -11,12 +14,8 @@ object Supervisor {
 }
 
 class Supervisor(context: ActorContext[NotUsed]) extends AbstractBehavior[NotUsed](context) {
-//  implicit val executionContext: ExecutionContext =
-//    context.system.dispatchers.lookup(DispatcherSelector.fromConfig("src/main/resources/application.conf"))
-//
-//  println(executionContext)
 
-  val dispatcher = context.spawn(Dispatcher(), "Dispatcher")
+  val dispatcher = context.spawn(Dispatcher(), "dispatcher.Dispatcher")
 
   val stationAlphaName = "station-alpha"
   val stationAlpha = context.spawn(Station(stationAlphaName, dispatcher), stationAlphaName)
@@ -27,8 +26,15 @@ class Supervisor(context: ActorContext[NotUsed]) extends AbstractBehavior[NotUse
   val stationEpsilonName = "station-epsilon"
   val stationEpsilon = context.spawn(Station(stationEpsilonName, dispatcher), stationEpsilonName)
 
-  val query1 = Station.Query("1", 100 + Random.nextInt(50), range = 50, timeout = 30000)
-  val query2 = Station.Query("2", 100, range = 100, timeout = 300)
+  val query1 = Station.Command.Query("1",
+    firstSatelliteIndex = 100 + Random.nextInt(50),
+    range = 50,
+    timeout = FiniteDuration(300, MILLISECONDS))
+
+  val query2 = Station.Command.Query("2",
+    firstSatelliteIndex = 100,
+    range = 100,
+    timeout = FiniteDuration(300, MILLISECONDS))
 
   stationAlpha ! query1
 
