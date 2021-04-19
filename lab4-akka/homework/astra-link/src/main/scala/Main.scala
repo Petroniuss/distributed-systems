@@ -1,6 +1,6 @@
 import akka.NotUsed
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
-import akka.actor.typed.{ActorSystem, Behavior, DispatcherSelector, PostStop, Signal}
+import akka.actor.typed.{ActorSystem, Behavior, DispatcherSelector, PostStop, Signal, SupervisorStrategy}
 import dispatcher.Dispatcher
 import station.Station
 
@@ -15,7 +15,9 @@ object Supervisor {
 
 class Supervisor(context: ActorContext[NotUsed]) extends AbstractBehavior[NotUsed](context) {
 
-  val dispatcher = context.spawn(Dispatcher(), "dispatcher.Dispatcher")
+  val dispatcher = context.spawn(
+    Behaviors.supervise(Dispatcher())
+      .onFailure[Exception](SupervisorStrategy.resume), "dispatcher")
 
   val stationAlphaName = "station-alpha"
   val stationAlpha = context.spawn(Station(stationAlphaName, dispatcher), stationAlphaName)
@@ -37,6 +39,8 @@ class Supervisor(context: ActorContext[NotUsed]) extends AbstractBehavior[NotUse
     timeout = FiniteDuration(300, MILLISECONDS))
 
   stationAlpha ! query1
+
+  stationEpsilon ! query2
 
   override def onMessage(ignored: NotUsed): Behavior[NotUsed] = {
     Behaviors.unhandled

@@ -2,13 +2,14 @@ package dispatcher
 
 import akka.actor.TypedActor.self
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector}
 import dispatcher.Dispatcher.Command.{SatelliteStatusQuery, Timeout, WrappedSatelliteResponse}
 import dispatcher.Dispatcher._
 import satellite.Satellite.Response.StatusResponse
 import satellite.{Satellite, Status}
 
 import java.util.concurrent.TimeUnit
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
 object Dispatcher {
@@ -41,8 +42,10 @@ object Dispatcher {
 
   def apply(): Behavior[Command] = {
     Behaviors.setup(context => {
+      val blockingDispatcher = DispatcherSelector.fromConfig("my-blocking-dispatcher")
+
       val refs = Range(100, 200).toList
-        .map(idx => context.spawn(Satellite(idx), s"satellite.Satellite-$idx"))
+        .map(idx => context.spawn(Satellite(idx), s"satellite.Satellite-$idx", blockingDispatcher))
 
       val responseMapper = context.messageAdapter[Satellite.Response](response =>
         WrappedSatelliteResponse(response)
