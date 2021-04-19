@@ -1,6 +1,12 @@
+package satellite
+
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
-import Satellite.{Command, Response}
+import satellite.Satellite.{Command, Response}
+import satellite.SatelliteAPI.getStatus
+import satellite.Status
+
+import scala.util.Random
 
 object Satellite {
   enum Command {
@@ -8,7 +14,7 @@ object Satellite {
   }
 
   enum Response {
-    case StatusResponse(queryId: String, status: Status)
+    case StatusResponse(queryId: String, satelliteIndex: Int, status: Status)
   }
 
   def apply(satelliteIndex: Int): Behavior[Command] = {
@@ -21,8 +27,8 @@ case class Satellite(satelliteIndex: Int) {
   def satellite(): Behavior[Command] = {
     Behaviors.receiveMessage {
       case Command.StatusQuery(queryId, replyTo) =>
-        val status = SatelliteAPI.getStatus(satelliteIndex)
-        val response = Response.StatusResponse(queryId, status)
+        val status = getStatus(satelliteIndex)
+        val response = Response.StatusResponse(queryId, satelliteIndex, status)
 
         // todo this one is blocking -> handle that carefully!
         replyTo ! response
@@ -31,3 +37,4 @@ case class Satellite(satelliteIndex: Int) {
   }
 
 }
+

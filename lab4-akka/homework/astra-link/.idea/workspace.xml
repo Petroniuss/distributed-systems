@@ -6,7 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="d8b2537c-7e2f-46a6-b5d3-bb8bea6aa41b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.bsp/sbt.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.bsp/sbt.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/distributed-zookeeper.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Dispatcher.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Dispatcher.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Satellite.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/satellite/Satellite.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/SatelliteAPI.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Station.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Station.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,7 +36,7 @@
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="z-watcher" type="f1a62948:ProjectNode" />
+                <item name="astra-link" type="f1a62948:ProjectNode" />
               </path>
             </expand>
             <select />
@@ -111,13 +118,15 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="class" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -148,7 +157,10 @@
       <updated>1618057307096</updated>
       <workItem from="1618057311147" duration="11029000" />
       <workItem from="1618136373600" duration="16339000" />
-      <workItem from="1618785229726" duration="9546000" />
+      <workItem from="1618785229726" duration="9654000" />
+      <workItem from="1618816533538" duration="2571000" />
+      <workItem from="1618819121041" duration="2638000" />
+      <workItem from="1618821773889" duration="232000" />
     </task>
     <servers />
   </component>

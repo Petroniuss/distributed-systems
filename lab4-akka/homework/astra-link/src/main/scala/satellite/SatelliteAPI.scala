@@ -1,11 +1,7 @@
-import scala.util.Random
+package satellite
 
-enum Status {
-  case OK
-  case BATTER_LOW
-  case PROPULSION_ERROR
-  case NAVIGATION_ERROR
-}
+import scala.util.Random
+import satellite.Status
 
 object SatelliteAPI {
   val rand = new Random()
@@ -27,3 +23,4 @@ object SatelliteAPI {
       Status.PROPULSION_ERROR
   }
 }
+
