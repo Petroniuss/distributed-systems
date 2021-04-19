@@ -5,14 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d8b2537c-7e2f-46a6-b5d3-bb8bea6aa41b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.bsp/sbt.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.sbt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/distributed-zookeeper.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/log4j.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/Main.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/ZNodeListener.scala" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/scala/ZNodeWatcher.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.bsp/sbt.json" beforeDir="false" afterPath="$PROJECT_DIR$/.bsp/sbt.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/ZNodeListener.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/ZNodeListener.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/.idea/modules/astra-link.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/.idea/modules/astra-link.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/build.sbt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/build.sbt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/resources/application.conf" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/resources/application.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/scala/Dispatcher.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/scala/Dispatcher.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/scala/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/scala/Main.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/scala/Station.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/scala/Station.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/scala/satellite/Satellite.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab4-akka/homework/astra-link/src/main/scala/satellite/Satellite.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +30,34 @@
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
     </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="SBT">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="z-watcher" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="z-watcher" type="f1a62948:ProjectNode" />
+                <item name="z-watcher" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="z-watcher" type="f1a62948:ProjectNode" />
+                <item name="z-watcher" type="2d1252cf:ModuleNode" />
+                <item name="sbt tasks" type="d9357504:SbtViewContributor$SbtTasksGroupNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -90,20 +122,7 @@
     <configuration name="hello" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="hello" />
       <module name="z-watcher" />
-      <option name="PROGRAM_PARAMETERS" value="0.0.0.0:2181 &quot;/Applications/Visual Studio Code.app/Contents/MacOS/Electron&quot; " />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
+      <option name="PROGRAM_PARAMETERS" value="0.0.0.0:2182 &quot;/Applications/Visual Studio Code.app/Contents/MacOS/Electron&quot; " />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -133,7 +152,10 @@
       <option name="presentableId" value="Default" />
       <updated>1618057307096</updated>
       <workItem from="1618057311147" duration="11029000" />
-      <workItem from="1618136373600" duration="15809000" />
+      <workItem from="1618136373600" duration="16339000" />
+      <workItem from="1618816545497" duration="906000" />
+      <workItem from="1618821781170" duration="1176000" />
+      <workItem from="1618826135047" duration="788000" />
     </task>
     <servers />
   </component>

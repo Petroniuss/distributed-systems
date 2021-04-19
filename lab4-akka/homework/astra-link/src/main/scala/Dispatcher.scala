@@ -19,23 +19,23 @@ object Dispatcher {
       val refs = Range(100, 200).toList
         .map(idx => context.spawn(Satellite(idx), s"satellite.Satellite-$idx"))
 
-      val responseMapper = context.messageAdapter( response =>
+      val responseMapper = context.messageAdapter[Satellite.Response] (response =>
         WrappedSatelliteResponse(response)
       )
 
-      def active(inProgress: Map[String, ActorRef[SatelliteResponse]]): Behavior[Command] = {
+      def active(inProgress: Map[(String, Int), ActorRef[SatelliteResponse]]): Behavior[Command] = {
         Behaviors.receiveMessage {
-
           case SatelliteStatusQuery(queryId, satelliteIndex, replyTo) =>
-            refs(satelliteIndex) ! Satellite.Command.StatusQuery(queryId, responseMapper)
-            Behaviors.same
+            refs(satelliteIndex - 100) ! Satellite.Command.StatusQuery(queryId, responseMapper)
+            val key = (queryId, satelliteIndex)
+            active( inProgress + (key -> replyTo))
 
           case WrappedSatelliteResponse(wrapped) =>
             wrapped match
               case StatusResponse(queryId, satelliteIndex, status) =>
-                inProgress(queryId) ! SatelliteResponse(queryId, satelliteIndex, status)
-
-                active(inProgress - queryId)
+                val key = (queryId, satelliteIndex)
+                inProgress(key) ! SatelliteResponse(queryId, satelliteIndex, status)
+                active( inProgress - key )
         }
       }
 

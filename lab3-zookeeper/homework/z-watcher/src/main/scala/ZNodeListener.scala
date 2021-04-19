@@ -7,7 +7,6 @@ trait ZNodeListener {
 }
 
 
-// todo create javafx app
 class ZNodeListenerImpl(znode: String,
                         exec: Array[String]) extends ZNodeListener {
   

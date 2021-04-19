@@ -23,7 +23,6 @@ object Satellite {
 }
 
 case class Satellite(satelliteIndex: Int) {
-
   def satellite(): Behavior[Command] = {
     Behaviors.receiveMessage {
       case Command.StatusQuery(queryId, replyTo) =>

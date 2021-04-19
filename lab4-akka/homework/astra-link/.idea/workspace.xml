@@ -8,12 +8,15 @@
       <change beforePath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.bsp/sbt.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.bsp/sbt.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/src/main/scala/ZNodeListener.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../../../lab3-zookeeper/homework/z-watcher/src/main/scala/ZNodeListener.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/astra-link.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/astra-link.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/distributed-zookeeper.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.sbt" beforeDir="false" afterPath="$PROJECT_DIR$/build.sbt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.conf" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Dispatcher.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Dispatcher.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/Satellite.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/satellite/Satellite.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/scala/SatelliteAPI.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/Main.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Main.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/scala/Station.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/Station.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/scala/satellite/Satellite.scala" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/scala/satellite/Satellite.scala" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +98,7 @@
       <recent name="$PROJECT_DIR$/src/main/resources" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.hello">
+  <component name="RunManager" selected="Application.astra-link">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="Main" />
       <module name="z-watcher" />
@@ -110,35 +113,34 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="hello" type="Application" factoryName="Application" temporary="true">
+    <configuration name="astra-link" type="Application" factoryName="Application" temporary="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="15" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="hello" />
-      <module name="z-watcher" />
-      <option name="PROGRAM_PARAMETERS" value="0.0.0.0:2181 &quot;/Applications/Visual Studio Code.app/Contents/MacOS/Electron&quot; " />
+      <module name="astra-link" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.hello" />
       <item itemvalue="Application.Main" />
       <item itemvalue="Application.ScalaFXHelloWorld" />
+      <item itemvalue="Application.astra-link" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.hello" />
+        <item itemvalue="Application.astra-link" />
         <item itemvalue="Application.ScalaFXHelloWorld" />
         <item itemvalue="Application.Main" />
       </list>
@@ -160,7 +162,8 @@
       <workItem from="1618785229726" duration="9654000" />
       <workItem from="1618816533538" duration="2571000" />
       <workItem from="1618819121041" duration="2638000" />
-      <workItem from="1618821773889" duration="232000" />
+      <workItem from="1618821773889" duration="3238000" />
+      <workItem from="1618826137293" duration="6712000" />
     </task>
     <servers />
   </component>
