@@ -32,13 +32,14 @@ object Station {
 
   case class Props(name: String,
                    dispatcher: ActorRef[Dispatcher.Command],
-                   mapper: ActorRef[Dispatcher.Response.QueryResult],
+                   queryResultMapper: ActorRef[Dispatcher.Response.QueryResult],
+                   statsQueryResultMapper: ActorRef[Dispatcher.Response.SatelliteStatsQueryResult],
                    context: ActorContext[Command])
 
 
   def apply(name: String, dispatcher: ActorRef[Dispatcher.Command]): Behavior[Command] = {
     Behaviors.setup { context =>
-      val mapper = context.messageAdapter[Dispatcher.Response.QueryResult](response =>
+      val queryResultMapper = context.messageAdapter[Dispatcher.Response.QueryResult](response =>
         Command.QueryResult(
           queryId = response.queryId,
           errorResponses = response.errors,
@@ -47,7 +48,11 @@ object Station {
           range = response.range)
       )
 
-      val props = Props(name, dispatcher, mapper, context)
+      val statsQueryResultMapper = context.messageAdapter[Dispatcher.Response.SatelliteStatsQueryResult](response =>
+        Command.StatsQueryResult(response.satelliteIndex, response.errors)
+      )
+
+      val props = Props(name, dispatcher, queryResultMapper, statsQueryResultMapper, context)
       new Station(props).receive()
     }
   }
@@ -58,7 +63,7 @@ object Station {
       firstSatelliteIndex = query.firstSatelliteIndex,
       range = query.range,
       timeout = query.timeout,
-      replyTo = props.mapper)
+      replyTo = props.queryResultMapper)
   }
 }
 
@@ -74,7 +79,7 @@ case class Station(props: Props) {
       Behaviors.same
 
     case StatsQuery(idx) =>
-      props.dispatcher ! Dispatcher.Command.SatelliteStatsQuery(idx)
+      props.dispatcher ! Dispatcher.Command.SatelliteStatsQuery(idx, props.statsQueryResultMapper)
       Behaviors.same
 
     case StatsQueryResult(idx, errors) =>

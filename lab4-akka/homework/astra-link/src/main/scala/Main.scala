@@ -9,39 +9,47 @@ import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.Random
 
+import cats.effect.IO
+import cats.syntax.all._
+
 object Supervisor {
   def apply(): Behavior[NotUsed] =
     Behaviors.setup(context => new Supervisor(context))
 }
 
 class Supervisor(context: ActorContext[NotUsed]) extends AbstractBehavior[NotUsed](context) {
+  H2Db.transactor.use { transactor => IO {
+    H2Db.initialize(transactor).unsafeRunSync()
 
-  val dispatcher = context.spawn(
-    Behaviors.supervise(Dispatcher())
-      .onFailure[Exception](SupervisorStrategy.resume), "dispatcher")
+    val dispatcher = context.spawn(
+      Behaviors.supervise(Dispatcher(transactor))
+        .onFailure[Exception](SupervisorStrategy.resume), "dispatcher")
 
-  val stationAlphaName = "station-alpha"
-  val stationAlpha = context.spawn(Station(stationAlphaName, dispatcher), stationAlphaName)
+    val stationAlphaName = "station-alpha"
+    val stationAlpha = context.spawn(Station(stationAlphaName, dispatcher), stationAlphaName)
 
-  val stationBetaName = "station-beta"
-  val stationBeta = context.spawn(Station(stationBetaName, dispatcher), stationBetaName)
+    val stationBetaName = "station-beta"
+    val stationBeta = context.spawn(Station(stationBetaName, dispatcher), stationBetaName)
 
-  val stationEpsilonName = "station-epsilon"
-  val stationEpsilon = context.spawn(Station(stationEpsilonName, dispatcher), stationEpsilonName)
+    val stationEpsilonName = "station-epsilon"
+    val stationEpsilon = context.spawn(Station(stationEpsilonName, dispatcher), stationEpsilonName)
 
-  val query1 = Station.Command.Query("1",
-    firstSatelliteIndex = 100 + Random.nextInt(50),
-    range = 50,
-    timeout = FiniteDuration(300, MILLISECONDS))
+    val query1 = Station.Command.Query("1",
+      firstSatelliteIndex = 100 + Random.nextInt(50),
+      range = 50,
+      timeout = FiniteDuration(300, MILLISECONDS))
 
-  val query2 = Station.Command.Query("2",
-    firstSatelliteIndex = 100,
-    range = 100,
-    timeout = FiniteDuration(300, MILLISECONDS))
+    val query2 = Station.Command.Query("2",
+      firstSatelliteIndex = 100,
+      range = 100,
+      timeout = FiniteDuration(300, MILLISECONDS))
 
-  stationAlpha ! query1
 
-  stationEpsilon ! query2
+    stationEpsilon ! query1
+
+    stationBeta ! query2
+
+  } >> IO.never }.unsafeRunAsyncAndForget()
 
   override def onMessage(ignored: NotUsed): Behavior[NotUsed] = {
     Behaviors.unhandled
@@ -56,8 +64,7 @@ class Supervisor(context: ActorContext[NotUsed]) extends AbstractBehavior[NotUse
 }
 
 @main def hello(): Unit = {
-//  val system = ActorSystem[NotUsed](Supervisor(), "astra-link-system")
-  H2Db()
+ val system = ActorSystem[NotUsed](Supervisor(), "astra-link-system")
 }
 
 

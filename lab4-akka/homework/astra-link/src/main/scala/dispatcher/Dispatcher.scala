@@ -3,10 +3,14 @@ package dispatcher
 import akka.actor.TypedActor.self
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector, SupervisorStrategy}
-import dispatcher.Dispatcher.Command.{SatelliteStatusQuery, Timeout, WrappedSatelliteResponse}
+import dispatcher.Dispatcher.Command.{SatelliteStatusQuery, Timeout, WrappedSatelliteResponse, SatelliteStatsQuery}
+import dispatcher.Dispatcher.Response.{SatelliteStatsQueryResult}
 import dispatcher.Dispatcher._
 import satellite.Satellite.Response.StatusResponse
 import satellite.{Satellite, Status}
+import database.H2Db
+import cats.effect.IO
+import doobie.hikari.HikariTransactor
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext
@@ -22,7 +26,7 @@ object Dispatcher {
                               timeout: FiniteDuration,
                               replyTo: ActorRef[Response.QueryResult])
 
-    case SatelliteStatsQuery(satelliteIndex: Int)
+    case SatelliteStatsQuery(satelliteIndex: Int, replyTo: ActorRef[Response.SatelliteStatsQueryResult])
 
     case WrappedSatelliteResponse(satelliteResponse: Satellite.Response)
 
@@ -35,6 +39,9 @@ object Dispatcher {
                      receivedInTime: Int,
                      duration: FiniteDuration,
                      range: Int)
+
+    case SatelliteStatsQueryResult(satelliteIndex: Int,
+                                   errors: Int)
   }
 
   case class State(pending: Map[String, QueryState])
@@ -44,7 +51,7 @@ object Dispatcher {
                         errorResponses: Map[Int, Status],
                         startTimeMs: FiniteDuration)
 
-  def apply(): Behavior[Command] = {
+  def apply(transactor: HikariTransactor[IO]): Behavior[Command] = {
     Behaviors.setup(context => {
       val blockingDispatcher = DispatcherSelector.fromConfig("my-blocking-dispatcher")
 
@@ -57,7 +64,7 @@ object Dispatcher {
       )
 
       val mempty = State(Map.empty)
-      new Dispatcher(refs, responseMapper).dispatch(mempty)
+      new Dispatcher(refs, responseMapper, transactor).dispatch(mempty)
     })
   }
 
@@ -93,10 +100,10 @@ object Dispatcher {
 }
 
 case class Dispatcher(satellites: List[ActorRef[Satellite.Command]],
-                      responseMapper: ActorRef[Satellite.Response]) {
+                      responseMapper: ActorRef[Satellite.Response],
+                      transactor: HikariTransactor[IO]) {
 
   def dispatch(state: State): Behavior[Command] = Behaviors.receiveMessage {
-
     case query @ SatelliteStatusQuery(queryId, firstSatelliteIndex, range, timeout, replyTo) =>
       Range(firstSatelliteIndex, firstSatelliteIndex + range).toList.foreach(idx => {
         satellites(idx - 100) ! Satellite.Command.StatusQuery(queryId, responseMapper)
@@ -146,6 +153,21 @@ case class Dispatcher(satellites: List[ActorRef[Satellite.Command]],
         replyTo ! queryResult
 
         dispatch( State(state.pending - queryId) )
-  }
 
+    case SatelliteStatsQuery(satelliteIndex, replyTo) =>
+      // run db query async in order not to block the actor
+      H2Db.readStats(satelliteIndex, transactor).unsafeRunAsync(either => {
+        either match 
+          case Left(throwable) => ()
+          case Right(dbResult) =>
+            val queryResult: SatelliteStatsQueryResult = 
+             SatelliteStatsQueryResult(dbResult.satelliteIndex, 
+            dbResult.reportedErrorsNumber)
+
+            replyTo ! queryResult
+      })
+
+      Behaviors.same
+  }
 }
+

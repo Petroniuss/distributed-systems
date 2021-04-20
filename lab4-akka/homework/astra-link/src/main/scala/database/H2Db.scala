@@ -6,20 +6,20 @@ import doobie.util.ExecutionContexts
 import cats._
 import cats.effect._
 import cats.implicits._
-import doobie.h2.H2Transactor
+import doobie.hikari.HikariTransactor
 
 object H2Db {
-
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous)
 
-  // A transactor that gets connections from java.sql.DriverManager and executes blocking operations
-  // on an our synchronous EC. See the chapter on connection handling for more info.
-  def transactor(): Resource[IO, H2Transactor[IO]] = {
+  // Resource yielding a transactor configured with a bounded connect EC and an unbounded
+  // transaction EC. Everything will be closed and shut down cleanly after use.
+  val transactor: Resource[IO, HikariTransactor[IO]] = {
     for
       ce <- ExecutionContexts.fixedThreadPool[IO](32) // our connect EC
       be <- Blocker[IO]    // our blocking EC
-      xa <- H2Transactor.newH2Transactor[IO](
-        "jdbc:h2:file:./h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE", // connect URL
+      xa <- HikariTransactor.newHikariTransactor[IO](
+        "org.h2.Driver",
+        "jdbc:h2:file:./h2;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE", // connect URL
         "sa",                                   // username
         "",                                     // password
         ce,                                     // await connection here
@@ -28,21 +28,11 @@ object H2Db {
     yield xa
   }
 
-  def run(): IO[ExitCode] = {
-    transactor().use { xa =>
-      // Construct and run your server here!
-      for {
-        rows <- SatelliteStatsTable.init().transact(xa)
-        _    <- SatelliteStatsTable.update(SatelliteStats(100, 1)).run.transact(xa)
-        foo  <- SatelliteStatsTable.read(100).unique.transact(xa)
-        _ <- IO(println(foo.reportedErrorsNumber))
-      } yield ExitCode.Success
-
-    }
+  def initialize(transactor: HikariTransactor[IO]): IO[Int] = {
+    SatelliteStatsTable.init().transact(transactor)
   }
 
-
-  def apply(): Unit = {
-    run().unsafeRunSync()
+  def readStats(satelliteIndex: Int, transactor: HikariTransactor[IO]): IO[SatelliteStats] = {
+    SatelliteStatsTable.read(satelliteIndex).unique.transact(transactor)
   }
 }
