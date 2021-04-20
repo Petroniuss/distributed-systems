@@ -93,7 +93,7 @@ case class Station(props: Props) {
                       |------------- station.Station [${props.name}] -----------------"
                       |
                       | Satellite-Id | Errors
-                      | ${idx}%10d | ${errors}%d
+                      | ${idx}%12d | ${errors}%d
                       |""".stripMargin
 
       props.context.log.info(report)

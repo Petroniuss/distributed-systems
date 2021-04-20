@@ -54,13 +54,21 @@ object SatelliteStatsTable {
     """.query[SatelliteStats]
   }
 
-  def update(satelliteStats: SatelliteStats): Update0 = {
-    val idx = satelliteStats.satelliteIndex
-    val errors = satelliteStats.reportedErrorsNumber
-
+  def update(satelliteIndex: Int): Update0 = {
     sql"""
-         UPDATE satellite_stats SET reported_errors_number = $errors WHERE satellite_index = $idx
+         UPDATE satellite_stats 
+         SET reported_errors_number = reported_errors_number + 1
+         WHERE satellite_index = $satelliteIndex
        """.update
+  }
+  
+  def updateMany(indices: List[Int]): ConnectionIO[Int] = {
+    val sql = """
+         UPDATE satellite_stats 
+         SET reported_errors_number = reported_errors_number + 1
+         WHERE satellite_index = ?
+       """
+    Update[Int](sql).updateMany(indices)
   }
 
 }

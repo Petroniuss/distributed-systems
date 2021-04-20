@@ -44,10 +44,17 @@ class Supervisor(context: ActorContext[NotUsed]) extends AbstractBehavior[NotUse
       range = 100,
       timeout = FiniteDuration(300, MILLISECONDS))
 
-
-    stationEpsilon ! query1
+    stationAlpha ! query1
 
     stationBeta ! query2
+
+    Thread.sleep(1000)
+
+    val indices = Range(100, 200).toList.foreach(idx => {
+      val statsQuery = Station.Command.StatsQuery(idx)
+      stationEpsilon ! statsQuery
+    })
+
 
   } >> IO.never }.unsafeRunAsyncAndForget()
 

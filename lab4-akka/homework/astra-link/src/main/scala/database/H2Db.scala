@@ -11,6 +11,7 @@ import doobie.hikari.HikariTransactor
 object H2Db {
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous)
 
+
   // Resource yielding a transactor configured with a bounded connect EC and an unbounded
   // transaction EC. Everything will be closed and shut down cleanly after use.
   val transactor: Resource[IO, HikariTransactor[IO]] = {
@@ -30,6 +31,10 @@ object H2Db {
 
   def initialize(transactor: HikariTransactor[IO]): IO[Int] = {
     SatelliteStatsTable.init().transact(transactor)
+  }
+
+  def updateStats(indices: List[Int], transactor: HikariTransactor[IO]): IO[Int] = {
+    SatelliteStatsTable.updateMany(indices).transact(transactor)
   }
 
   def readStats(satelliteIndex: Int, transactor: HikariTransactor[IO]): IO[SatelliteStats] = {

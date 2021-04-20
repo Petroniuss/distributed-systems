@@ -132,6 +132,7 @@ case class Dispatcher(satellites: List[ActorRef[Satellite.Command]],
           val queryResult = constructQueryResult(queryState)
 
           replyTo ! queryResult
+          updateDatabase(queryState.errorResponses)
 
           dispatch( State(state.pending - queryId) )
         else
@@ -151,6 +152,7 @@ case class Dispatcher(satellites: List[ActorRef[Satellite.Command]],
         val replyTo = queryState.query.replyTo
 
         replyTo ! queryResult
+        updateDatabase(queryState.errorResponses)
 
         dispatch( State(state.pending - queryId) )
 
@@ -168,6 +170,12 @@ case class Dispatcher(satellites: List[ActorRef[Satellite.Command]],
       })
 
       Behaviors.same
+  }
+
+
+  def updateDatabase(errors: Map[Int, Status]): Unit = {
+    val indices = errors.toList.map(_._1)
+    H2Db.updateStats(indices, transactor).unsafeRunAsyncAndForget()
   }
 }
 

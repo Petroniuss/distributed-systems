@@ -4,7 +4,7 @@ import scala.util.Random
 import satellite.Status
 
 object SatelliteAPI {
-  val rand = new Random()
+  val rand = new Random(1)
 
   def getStatus(satelliteIndex: Int): Status = {
     try
