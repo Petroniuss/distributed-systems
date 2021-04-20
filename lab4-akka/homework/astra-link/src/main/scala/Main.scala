@@ -1,6 +1,7 @@
 import akka.NotUsed
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorSystem, Behavior, DispatcherSelector, PostStop, Signal, SupervisorStrategy}
+import database.H2Db
 import dispatcher.Dispatcher
 import station.Station
 
@@ -55,7 +56,8 @@ class Supervisor(context: ActorContext[NotUsed]) extends AbstractBehavior[NotUse
 }
 
 @main def hello(): Unit = {
-  val system = ActorSystem[NotUsed](Supervisor(), "astra-link-system")
+//  val system = ActorSystem[NotUsed](Supervisor(), "astra-link-system")
+  H2Db()
 }
 
 

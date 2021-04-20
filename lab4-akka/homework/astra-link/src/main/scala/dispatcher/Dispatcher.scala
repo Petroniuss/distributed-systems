@@ -22,6 +22,8 @@ object Dispatcher {
                               timeout: FiniteDuration,
                               replyTo: ActorRef[Response.QueryResult])
 
+    case SatelliteStatsQuery(satelliteIndex: Int)
+
     case WrappedSatelliteResponse(satelliteResponse: Satellite.Response)
 
     case Timeout(queryId: String)

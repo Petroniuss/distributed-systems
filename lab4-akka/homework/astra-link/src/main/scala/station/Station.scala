@@ -5,7 +5,7 @@ import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import dispatcher.Dispatcher
 import satellite.Status
-import station.Station.Command.{Query, QueryResult}
+import station.Station.Command.{Query, QueryResult, StatsQuery, StatsQueryResult}
 import station.Station._
 
 import java.util.concurrent.TimeUnit
@@ -23,6 +23,11 @@ object Station {
                firstSatelliteIndex: Int,
                range: Int,
                timeout: FiniteDuration)
+
+
+    case StatsQuery(satelliteIndex: Int)
+
+    case StatsQueryResult(satelliteIndex: Int, errors: Int)
   }
 
   case class Props(name: String,
@@ -68,6 +73,25 @@ case class Station(props: Props) {
       showResults(queryResult)
       Behaviors.same
 
+    case StatsQuery(idx) =>
+      props.dispatcher ! Dispatcher.Command.SatelliteStatsQuery(idx)
+      Behaviors.same
+
+    case StatsQueryResult(idx, errors) =>
+      showSatelliteStats(idx, errors)
+      Behaviors.same
+  }
+
+  def showSatelliteStats(idx: Int, errors: Int): Unit = {
+    if errors > 0 then
+      val report = f"""
+                      |------------- station.Station [${props.name}] -----------------"
+                      |
+                      | Satellite-Id | Errors
+                      | ${idx}%10d | ${errors}%d
+                      |""".stripMargin
+
+      props.context.log.info(report)
   }
 
   def showResults(queryResult: QueryResult): Unit = {

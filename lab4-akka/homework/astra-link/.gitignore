@@ -41,3 +41,10 @@ build
 
 #general
 *.class
+
+h2.lock.db
+h2.mv.db
+h2.trace.db
+
+.bsp
+.idea
