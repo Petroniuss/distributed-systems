@@ -9,15 +9,14 @@ import cats.implicits._
 import doobie.hikari.HikariTransactor
 
 object H2Db {
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous)
-
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContexts.synchronous) // for non-blocking operations
 
   // Resource yielding a transactor configured with a bounded connect EC and an unbounded
   // transaction EC. Everything will be closed and shut down cleanly after use.
   val transactor: Resource[IO, HikariTransactor[IO]] = {
     for
-      ce <- ExecutionContexts.fixedThreadPool[IO](32) // our connect EC
-      be <- Blocker[IO]    // our blocking EC
+      ce <- ExecutionContexts.fixedThreadPool[IO](32) // our connect EC - bounded
+      be <- Blocker[IO]    // our blocking EC - unbounded
       xa <- HikariTransactor.newHikariTransactor[IO](
         "org.h2.Driver",
         "jdbc:h2:file:./h2;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE", // connect URL
