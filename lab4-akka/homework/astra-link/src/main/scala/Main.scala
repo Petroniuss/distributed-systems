@@ -1,6 +1,7 @@
 import akka.NotUsed
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorSystem, Behavior, DispatcherSelector, PostStop, Signal, SupervisorStrategy}
+import akka.event.slf4j.Logger
 import database.H2Db
 import dispatcher.Dispatcher
 import station.Station
@@ -8,7 +9,6 @@ import station.Station
 import scala.concurrent.duration.{FiniteDuration, MILLISECONDS}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 import scala.util.Random
-
 import cats.effect.IO
 import cats.syntax.all._
 
