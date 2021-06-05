@@ -1,1 +1,0 @@
-/Users/petroniuss/Studies/DistributedSystems/lab7-gRPC/telemetry/kotlin-client/build/classes/kotlin/main/MainKt.class
