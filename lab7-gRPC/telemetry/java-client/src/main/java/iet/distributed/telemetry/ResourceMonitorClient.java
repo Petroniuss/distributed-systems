@@ -37,7 +37,7 @@ public class ResourceMonitorClient {
         @Override
         public void onError(Throwable t) {
             done = true;
-            logger.log(Level.WARNING, "Streaming completed", t);
+            logger.log(Level.WARNING, "Streaming completed");
         }
 
         @Override

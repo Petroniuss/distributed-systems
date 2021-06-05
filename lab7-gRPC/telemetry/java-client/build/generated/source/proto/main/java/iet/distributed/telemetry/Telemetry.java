@@ -137,21 +137,21 @@ public final class Telemetry {
       "\030\002 \001(\t\"}\n\014RouteSummary\022\023\n\013point_count\030\001 " +
       "\001(\005\022\025\n\rfeature_count\030\002 \001(\005\022\020\n\010distance\030\003" +
       " \001(\005\022/\n\014elapsed_time\030\004 \001(\0132\031.google.prot" +
-      "obuf.Duration*1\n\010DataType\022\017\n\013TEMPERATURE" +
-      "\020\000\022\t\n\005WATER\020\001\022\t\n\005POWER\020\0022u\n\017ResourceMoni" +
-      "tor\022b\n\nStreamData\022&.iet.distributed.tele" +
-      "metry.BatchedData\032(.iet.distributed.tele" +
-      "metry.Acknowledment(\0010\0012\365\002\n\nRouteGuide\022R" +
-      "\n\nGetFeature\022 .iet.distributed.telemetry" +
-      ".Point\032\".iet.distributed.telemetry.Featu" +
-      "re\022Z\n\014ListFeatures\022$.iet.distributed.tel" +
-      "emetry.Rectangle\032\".iet.distributed.telem" +
-      "etry.Feature0\001\022Z\n\013RecordRoute\022 .iet.dist" +
-      "ributed.telemetry.Point\032\'.iet.distribute" +
-      "d.telemetry.RouteSummary(\001\022[\n\tRouteChat\022" +
-      "$.iet.distributed.telemetry.RouteNote\032$." +
-      "iet.distributed.telemetry.RouteNote(\0010\001B" +
-      "\014P\001Z\010gen/;genb\006proto3"
+      "obuf.Duration*:\n\010DataType\022\017\n\013TEMPERATURE" +
+      "\020\000\022\t\n\005WATER\020\001\022\t\n\005POWER\020\002\022\007\n\003FOO\020\0032u\n\017Res" +
+      "ourceMonitor\022b\n\nStreamData\022&.iet.distrib" +
+      "uted.telemetry.BatchedData\032(.iet.distrib" +
+      "uted.telemetry.Acknowledment(\0010\0012\365\002\n\nRou" +
+      "teGuide\022R\n\nGetFeature\022 .iet.distributed." +
+      "telemetry.Point\032\".iet.distributed.teleme" +
+      "try.Feature\022Z\n\014ListFeatures\022$.iet.distri" +
+      "buted.telemetry.Rectangle\032\".iet.distribu" +
+      "ted.telemetry.Feature0\001\022Z\n\013RecordRoute\022 " +
+      ".iet.distributed.telemetry.Point\032\'.iet.d" +
+      "istributed.telemetry.RouteSummary(\001\022[\n\tR" +
+      "outeChat\022$.iet.distributed.telemetry.Rou" +
+      "teNote\032$.iet.distributed.telemetry.Route" +
+      "Note(\0010\001B\014P\001Z\010gen/;genb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

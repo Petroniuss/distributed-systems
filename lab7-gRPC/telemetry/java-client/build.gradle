@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'com.google.protobuf'
 
 buildscript {
@@ -57,4 +58,8 @@ protobuf {
             grpc {}
         }
     }
+}
+
+application {
+    mainClassName = "iet.distributed.telemetry.Main"
 }

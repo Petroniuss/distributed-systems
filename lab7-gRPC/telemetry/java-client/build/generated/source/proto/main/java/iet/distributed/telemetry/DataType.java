@@ -26,6 +26,10 @@ public enum DataType
    * <code>POWER = 2;</code>
    */
   POWER(2),
+  /**
+   * <code>FOO = 3;</code>
+   */
+  FOO(3),
   UNRECOGNIZED(-1),
   ;
 
@@ -41,6 +45,10 @@ public enum DataType
    * <code>POWER = 2;</code>
    */
   public static final int POWER_VALUE = 2;
+  /**
+   * <code>FOO = 3;</code>
+   */
+  public static final int FOO_VALUE = 3;
 
 
   public final int getNumber() {
@@ -70,6 +78,7 @@ public enum DataType
       case 0: return TEMPERATURE;
       case 1: return WATER;
       case 2: return POWER;
+      case 3: return FOO;
       default: return null;
     }
   }

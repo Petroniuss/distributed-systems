@@ -29,8 +29,9 @@ iet/distributed/telemetry/sensors/WaterSensor.java
  iet.distributed.telemetry.sensors.WaterSensor
 iet/distributed/telemetry/BatchedDataOrBuilder.java
  iet.distributed.telemetry.BatchedDataOrBuilder
-iet/distributed/telemetry/RouteSummaryOrBuilder.java
- iet.distributed.telemetry.RouteSummaryOrBuilder
+iet/distributed/telemetry/BatchManager.java
+ iet.distributed.telemetry.BatchManager
+ iet.distributed.telemetry.BatchManager$1
 iet/distributed/telemetry/ResourceMonitorGrpc.java
  iet.distributed.telemetry.ResourceMonitorGrpc
  iet.distributed.telemetry.ResourceMonitorGrpc$1
@@ -75,14 +76,8 @@ iet/distributed/telemetry/DataType.java
  iet.distributed.telemetry.DataType$1
 iet/distributed/telemetry/RouteNoteOrBuilder.java
  iet.distributed.telemetry.RouteNoteOrBuilder
-iet/distributed/telemetry/Acknowledment.java
- iet.distributed.telemetry.Acknowledment
- iet.distributed.telemetry.Acknowledment$1
- iet.distributed.telemetry.Acknowledment$Builder
-iet/distributed/telemetry/Rectangle.java
- iet.distributed.telemetry.Rectangle
- iet.distributed.telemetry.Rectangle$1
- iet.distributed.telemetry.Rectangle$Builder
+iet/distributed/telemetry/Main.java
+ iet.distributed.telemetry.Main
 iet/distributed/telemetry/PowerConsumptionDataOrBuilder.java
  iet.distributed.telemetry.PowerConsumptionDataOrBuilder
 iet/distributed/telemetry/Point.java
@@ -93,8 +88,9 @@ iet/distributed/telemetry/FeatureDatabase.java
  iet.distributed.telemetry.FeatureDatabase
  iet.distributed.telemetry.FeatureDatabase$1
  iet.distributed.telemetry.FeatureDatabase$Builder
-iet/distributed/telemetry/sensors/TemperatureSensor.java
- iet.distributed.telemetry.sensors.TemperatureSensor
+iet/distributed/telemetry/ResourceMonitorClient.java
+ iet.distributed.telemetry.ResourceMonitorClient
+ iet.distributed.telemetry.ResourceMonitorClient$ResponseObserver
 iet/distributed/telemetry/SensorData.java
  iet.distributed.telemetry.SensorData
  iet.distributed.telemetry.SensorData$1
@@ -127,15 +123,19 @@ iet/distributed/telemetry/RouteNote.java
  iet.distributed.telemetry.RouteNote
  iet.distributed.telemetry.RouteNote$1
  iet.distributed.telemetry.RouteNote$Builder
+iet/distributed/telemetry/Rectangle.java
+ iet.distributed.telemetry.Rectangle
+ iet.distributed.telemetry.Rectangle$1
+ iet.distributed.telemetry.Rectangle$Builder
+iet/distributed/telemetry/RouteSummaryOrBuilder.java
+ iet.distributed.telemetry.RouteSummaryOrBuilder
+iet/distributed/telemetry/sensors/TemperatureSensor.java
+ iet.distributed.telemetry.sensors.TemperatureSensor
 iet/distributed/telemetry/RouteSummary.java
  iet.distributed.telemetry.RouteSummary
  iet.distributed.telemetry.RouteSummary$1
  iet.distributed.telemetry.RouteSummary$Builder
-iet/distributed/telemetry/ResourceMonitorClient.java
- iet.distributed.telemetry.ResourceMonitorClient
- iet.distributed.telemetry.ResourceMonitorClient$ResponseObserver
-iet/distributed/telemetry/BatchManager.java
- iet.distributed.telemetry.BatchManager
- iet.distributed.telemetry.BatchManager$1
-iet/distributed/telemetry/Main.java
- iet.distributed.telemetry.Main
+iet/distributed/telemetry/Acknowledment.java
+ iet.distributed.telemetry.Acknowledment
+ iet.distributed.telemetry.Acknowledment$1
+ iet.distributed.telemetry.Acknowledment$Builder

@@ -50,6 +50,7 @@ enum DataType {
   TEMPERATURE = 0;
   WATER       = 1;
   POWER       = 2;
+  FOO = 3;
 }
 
 // information about a single measurement

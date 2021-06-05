@@ -27,10 +27,22 @@ public class Main {
         final var manager = new BatchManager(client, Duration.of(15, ChronoUnit.SECONDS));
 
         // spawn sensor threads
-        final var threadPool = Executors.newCachedThreadPool();
+        final var threadPool = Executors.newFixedThreadPool(3);
         createSensors().forEach(sensor -> {
             threadPool.submit(() -> sensorJob(sensor, manager));
         });
+
+        while (manager.isConnectionAlive()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+
+            }
+        }
+
+        // clear resources
+        threadPool.shutdown();
+        channel.shutdown();
     }
 
     private static void sensorJob(Sensor sensor, BatchManager batchManager) {
