@@ -30,4 +30,15 @@ public interface SensorMetadataOrBuilder extends
    */
   com.google.protobuf.ByteString
       getTypeBytes();
+
+  /**
+   * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+   * @return The enum numeric value on the wire for dataType.
+   */
+  int getDataTypeValue();
+  /**
+   * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+   * @return The dataType.
+   */
+  iet.distributed.telemetry.DataType getDataType();
 }

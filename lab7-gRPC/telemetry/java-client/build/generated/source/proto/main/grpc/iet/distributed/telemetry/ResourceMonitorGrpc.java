@@ -28,34 +28,34 @@ public final class ResourceMonitorGrpc {
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<iet.distributed.telemetry.BatchedData,
-      iet.distributed.telemetry.Acknowledment> getRouteChatMethod;
+      iet.distributed.telemetry.Acknowledment> getStreamDataMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "RouteChat",
+      fullMethodName = SERVICE_NAME + '/' + "StreamData",
       requestType = iet.distributed.telemetry.BatchedData.class,
       responseType = iet.distributed.telemetry.Acknowledment.class,
       methodType = io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
   public static io.grpc.MethodDescriptor<iet.distributed.telemetry.BatchedData,
-      iet.distributed.telemetry.Acknowledment> getRouteChatMethod() {
-    io.grpc.MethodDescriptor<iet.distributed.telemetry.BatchedData, iet.distributed.telemetry.Acknowledment> getRouteChatMethod;
-    if ((getRouteChatMethod = ResourceMonitorGrpc.getRouteChatMethod) == null) {
+      iet.distributed.telemetry.Acknowledment> getStreamDataMethod() {
+    io.grpc.MethodDescriptor<iet.distributed.telemetry.BatchedData, iet.distributed.telemetry.Acknowledment> getStreamDataMethod;
+    if ((getStreamDataMethod = ResourceMonitorGrpc.getStreamDataMethod) == null) {
       synchronized (ResourceMonitorGrpc.class) {
-        if ((getRouteChatMethod = ResourceMonitorGrpc.getRouteChatMethod) == null) {
-          ResourceMonitorGrpc.getRouteChatMethod = getRouteChatMethod =
+        if ((getStreamDataMethod = ResourceMonitorGrpc.getStreamDataMethod) == null) {
+          ResourceMonitorGrpc.getStreamDataMethod = getStreamDataMethod =
               io.grpc.MethodDescriptor.<iet.distributed.telemetry.BatchedData, iet.distributed.telemetry.Acknowledment>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.BIDI_STREAMING)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "RouteChat"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "StreamData"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   iet.distributed.telemetry.BatchedData.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   iet.distributed.telemetry.Acknowledment.getDefaultInstance()))
-              .setSchemaDescriptor(new ResourceMonitorMethodDescriptorSupplier("RouteChat"))
+              .setSchemaDescriptor(new ResourceMonitorMethodDescriptorSupplier("StreamData"))
               .build();
         }
       }
     }
-    return getRouteChatMethod;
+    return getStreamDataMethod;
   }
 
   /**
@@ -111,20 +111,20 @@ public final class ResourceMonitorGrpc {
      * client communicates with server using bidirectional async communication.
      * </pre>
      */
-    public io.grpc.stub.StreamObserver<iet.distributed.telemetry.BatchedData> routeChat(
+    public io.grpc.stub.StreamObserver<iet.distributed.telemetry.BatchedData> streamData(
         io.grpc.stub.StreamObserver<iet.distributed.telemetry.Acknowledment> responseObserver) {
-      return asyncUnimplementedStreamingCall(getRouteChatMethod(), responseObserver);
+      return asyncUnimplementedStreamingCall(getStreamDataMethod(), responseObserver);
     }
 
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
           .addMethod(
-            getRouteChatMethod(),
+            getStreamDataMethod(),
             asyncBidiStreamingCall(
               new MethodHandlers<
                 iet.distributed.telemetry.BatchedData,
                 iet.distributed.telemetry.Acknowledment>(
-                  this, METHODID_ROUTE_CHAT)))
+                  this, METHODID_STREAM_DATA)))
           .build();
     }
   }
@@ -148,10 +148,10 @@ public final class ResourceMonitorGrpc {
      * client communicates with server using bidirectional async communication.
      * </pre>
      */
-    public io.grpc.stub.StreamObserver<iet.distributed.telemetry.BatchedData> routeChat(
+    public io.grpc.stub.StreamObserver<iet.distributed.telemetry.BatchedData> streamData(
         io.grpc.stub.StreamObserver<iet.distributed.telemetry.Acknowledment> responseObserver) {
       return asyncBidiStreamingCall(
-          getChannel().newCall(getRouteChatMethod(), getCallOptions()), responseObserver);
+          getChannel().newCall(getStreamDataMethod(), getCallOptions()), responseObserver);
     }
   }
 
@@ -185,7 +185,7 @@ public final class ResourceMonitorGrpc {
     }
   }
 
-  private static final int METHODID_ROUTE_CHAT = 0;
+  private static final int METHODID_STREAM_DATA = 0;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -214,8 +214,8 @@ public final class ResourceMonitorGrpc {
     public io.grpc.stub.StreamObserver<Req> invoke(
         io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
-        case METHODID_ROUTE_CHAT:
-          return (io.grpc.stub.StreamObserver<Req>) serviceImpl.routeChat(
+        case METHODID_STREAM_DATA:
+          return (io.grpc.stub.StreamObserver<Req>) serviceImpl.streamData(
               (io.grpc.stub.StreamObserver<iet.distributed.telemetry.Acknowledment>) responseObserver);
         default:
           throw new AssertionError();
@@ -268,7 +268,7 @@ public final class ResourceMonitorGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new ResourceMonitorFileDescriptorSupplier())
-              .addMethod(getRouteChatMethod())
+              .addMethod(getStreamDataMethod())
               .build();
         }
       }

@@ -10,7 +10,7 @@ option go_package="gen/;gen";
 
 service ResourceMonitor {
   // client communicates with server using bidirectional async communication.
-  rpc RouteChat(stream BatchedData) returns (stream Acknowledment);
+  rpc StreamData(stream BatchedData) returns (stream Acknowledment);
 }
 
 message Acknowledment {
@@ -33,14 +33,14 @@ message BatchedData {
 // Contains measurements of specified type from a single sensor.
 message SensorData {
   SensorMetadata metadata = 1;
-  DataType     data_type  = 2;
-  repeated Measurement measurements = 3;
+  repeated Measurement measurements = 2;
 }
 
 // metadata about the sensor
 message SensorMetadata {
   string owner = 1;
   string type  = 2;
+  DataType data_type  = 3;
 }
 
 // Adding another sensor sending different data

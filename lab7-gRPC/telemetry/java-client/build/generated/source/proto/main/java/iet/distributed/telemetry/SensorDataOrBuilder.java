@@ -23,36 +23,25 @@ public interface SensorDataOrBuilder extends
   iet.distributed.telemetry.SensorMetadataOrBuilder getMetadataOrBuilder();
 
   /**
-   * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-   * @return The enum numeric value on the wire for dataType.
-   */
-  int getDataTypeValue();
-  /**
-   * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-   * @return The dataType.
-   */
-  iet.distributed.telemetry.DataType getDataType();
-
-  /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   java.util.List<iet.distributed.telemetry.Measurement> 
       getMeasurementsList();
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   iet.distributed.telemetry.Measurement getMeasurements(int index);
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   int getMeasurementsCount();
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   java.util.List<? extends iet.distributed.telemetry.MeasurementOrBuilder> 
       getMeasurementsOrBuilderList();
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   iet.distributed.telemetry.MeasurementOrBuilder getMeasurementsOrBuilder(
       int index);

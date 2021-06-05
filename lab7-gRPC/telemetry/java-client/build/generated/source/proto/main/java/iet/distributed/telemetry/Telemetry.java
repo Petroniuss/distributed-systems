@@ -105,13 +105,13 @@ public final class Telemetry {
       "/\n\013batch_start\030\001 \001(\0132\032.google.protobuf.T" +
       "imestamp\022-\n\tbatch_end\030\002 \001(\0132\032.google.pro" +
       "tobuf.Timestamp\022:\n\013sensor_data\030\003 \003(\0132%.i" +
-      "et.distributed.telemetry.SensorData\"\277\001\n\n" +
+      "et.distributed.telemetry.SensorData\"\207\001\n\n" +
       "SensorData\022;\n\010metadata\030\001 \001(\0132).iet.distr" +
-      "ibuted.telemetry.SensorMetadata\0226\n\tdata_" +
-      "type\030\002 \001(\0162#.iet.distributed.telemetry.D" +
-      "ataType\022<\n\014measurements\030\003 \003(\0132&.iet.dist" +
-      "ributed.telemetry.Measurement\"-\n\016SensorM" +
-      "etadata\022\r\n\005owner\030\001 \001(\t\022\014\n\004type\030\002 \001(\t\"\306\002\n" +
+      "ibuted.telemetry.SensorMetadata\022<\n\014measu" +
+      "rements\030\002 \003(\0132&.iet.distributed.telemetr" +
+      "y.Measurement\"e\n\016SensorMetadata\022\r\n\005owner" +
+      "\030\001 \001(\t\022\014\n\004type\030\002 \001(\t\0226\n\tdata_type\030\003 \001(\0162" +
+      "#.iet.distributed.telemetry.DataType\"\306\002\n" +
       "\013Measurement\022:\n\013common_data\030\001 \001(\0132%.iet." +
       "distributed.telemetry.CommonData\022F\n\020temp" +
       "erature_data\030\002 \001(\0132*.iet.distributed.tel" +
@@ -138,20 +138,20 @@ public final class Telemetry {
       "\001(\005\022\025\n\rfeature_count\030\002 \001(\005\022\020\n\010distance\030\003" +
       " \001(\005\022/\n\014elapsed_time\030\004 \001(\0132\031.google.prot" +
       "obuf.Duration*1\n\010DataType\022\017\n\013TEMPERATURE" +
-      "\020\000\022\t\n\005WATER\020\001\022\t\n\005POWER\020\0022t\n\017ResourceMoni" +
-      "tor\022a\n\tRouteChat\022&.iet.distributed.telem" +
-      "etry.BatchedData\032(.iet.distributed.telem" +
-      "etry.Acknowledment(\0010\0012\365\002\n\nRouteGuide\022R\n" +
-      "\nGetFeature\022 .iet.distributed.telemetry." +
-      "Point\032\".iet.distributed.telemetry.Featur" +
-      "e\022Z\n\014ListFeatures\022$.iet.distributed.tele" +
-      "metry.Rectangle\032\".iet.distributed.teleme" +
-      "try.Feature0\001\022Z\n\013RecordRoute\022 .iet.distr" +
-      "ibuted.telemetry.Point\032\'.iet.distributed" +
-      ".telemetry.RouteSummary(\001\022[\n\tRouteChat\022$" +
-      ".iet.distributed.telemetry.RouteNote\032$.i" +
-      "et.distributed.telemetry.RouteNote(\0010\001B\014" +
-      "P\001Z\010gen/;genb\006proto3"
+      "\020\000\022\t\n\005WATER\020\001\022\t\n\005POWER\020\0022u\n\017ResourceMoni" +
+      "tor\022b\n\nStreamData\022&.iet.distributed.tele" +
+      "metry.BatchedData\032(.iet.distributed.tele" +
+      "metry.Acknowledment(\0010\0012\365\002\n\nRouteGuide\022R" +
+      "\n\nGetFeature\022 .iet.distributed.telemetry" +
+      ".Point\032\".iet.distributed.telemetry.Featu" +
+      "re\022Z\n\014ListFeatures\022$.iet.distributed.tel" +
+      "emetry.Rectangle\032\".iet.distributed.telem" +
+      "etry.Feature0\001\022Z\n\013RecordRoute\022 .iet.dist" +
+      "ributed.telemetry.Point\032\'.iet.distribute" +
+      "d.telemetry.RouteSummary(\001\022[\n\tRouteChat\022" +
+      "$.iet.distributed.telemetry.RouteNote\032$." +
+      "iet.distributed.telemetry.RouteNote(\0010\001B" +
+      "\014P\001Z\010gen/;genb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -176,13 +176,13 @@ public final class Telemetry {
     internal_static_iet_distributed_telemetry_SensorData_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_iet_distributed_telemetry_SensorData_descriptor,
-        new java.lang.String[] { "Metadata", "DataType", "Measurements", });
+        new java.lang.String[] { "Metadata", "Measurements", });
     internal_static_iet_distributed_telemetry_SensorMetadata_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_iet_distributed_telemetry_SensorMetadata_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_iet_distributed_telemetry_SensorMetadata_descriptor,
-        new java.lang.String[] { "Owner", "Type", });
+        new java.lang.String[] { "Owner", "Type", "DataType", });
     internal_static_iet_distributed_telemetry_Measurement_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_iet_distributed_telemetry_Measurement_fieldAccessorTable = new

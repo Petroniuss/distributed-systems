@@ -96,7 +96,7 @@ func handleBatch(data *pb.BatchedData) error {
 
 	for sensorIdx, sensorData := range data.GetSensorData() {
 		meta := sensorData.GetMetadata()
-		dataType := sensorData.GetDataType()
+		dataType := meta.GetDataType()
 		fmt.Printf("%v. Sensor Metadata \n\t - Sensor Type:%v \n\t - Sensor Owner: %v",
 			sensorIdx, meta.GetType(), meta.GetOwner())
 

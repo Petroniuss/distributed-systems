@@ -20,7 +20,6 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private SensorData() {
-    dataType_ = 0;
     measurements_ = java.util.Collections.emptyList();
   }
 
@@ -68,13 +67,7 @@ private static final long serialVersionUID = 0L;
 
             break;
           }
-          case 16: {
-            int rawValue = input.readEnum();
-
-            dataType_ = rawValue;
-            break;
-          }
-          case 26: {
+          case 18: {
             if (!((mutable_bitField0_ & 0x00000001) != 0)) {
               measurements_ = new java.util.ArrayList<iet.distributed.telemetry.Measurement>();
               mutable_bitField0_ |= 0x00000001;
@@ -144,36 +137,17 @@ private static final long serialVersionUID = 0L;
     return getMetadata();
   }
 
-  public static final int DATA_TYPE_FIELD_NUMBER = 2;
-  private int dataType_;
-  /**
-   * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-   * @return The enum numeric value on the wire for dataType.
-   */
-  @java.lang.Override public int getDataTypeValue() {
-    return dataType_;
-  }
-  /**
-   * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-   * @return The dataType.
-   */
-  @java.lang.Override public iet.distributed.telemetry.DataType getDataType() {
-    @SuppressWarnings("deprecation")
-    iet.distributed.telemetry.DataType result = iet.distributed.telemetry.DataType.valueOf(dataType_);
-    return result == null ? iet.distributed.telemetry.DataType.UNRECOGNIZED : result;
-  }
-
-  public static final int MEASUREMENTS_FIELD_NUMBER = 3;
+  public static final int MEASUREMENTS_FIELD_NUMBER = 2;
   private java.util.List<iet.distributed.telemetry.Measurement> measurements_;
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   @java.lang.Override
   public java.util.List<iet.distributed.telemetry.Measurement> getMeasurementsList() {
     return measurements_;
   }
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   @java.lang.Override
   public java.util.List<? extends iet.distributed.telemetry.MeasurementOrBuilder> 
@@ -181,21 +155,21 @@ private static final long serialVersionUID = 0L;
     return measurements_;
   }
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   @java.lang.Override
   public int getMeasurementsCount() {
     return measurements_.size();
   }
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   @java.lang.Override
   public iet.distributed.telemetry.Measurement getMeasurements(int index) {
     return measurements_.get(index);
   }
   /**
-   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+   * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
    */
   @java.lang.Override
   public iet.distributed.telemetry.MeasurementOrBuilder getMeasurementsOrBuilder(
@@ -220,11 +194,8 @@ private static final long serialVersionUID = 0L;
     if (metadata_ != null) {
       output.writeMessage(1, getMetadata());
     }
-    if (dataType_ != iet.distributed.telemetry.DataType.TEMPERATURE.getNumber()) {
-      output.writeEnum(2, dataType_);
-    }
     for (int i = 0; i < measurements_.size(); i++) {
-      output.writeMessage(3, measurements_.get(i));
+      output.writeMessage(2, measurements_.get(i));
     }
     unknownFields.writeTo(output);
   }
@@ -239,13 +210,9 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(1, getMetadata());
     }
-    if (dataType_ != iet.distributed.telemetry.DataType.TEMPERATURE.getNumber()) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeEnumSize(2, dataType_);
-    }
     for (int i = 0; i < measurements_.size(); i++) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(3, measurements_.get(i));
+        .computeMessageSize(2, measurements_.get(i));
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -267,7 +234,6 @@ private static final long serialVersionUID = 0L;
       if (!getMetadata()
           .equals(other.getMetadata())) return false;
     }
-    if (dataType_ != other.dataType_) return false;
     if (!getMeasurementsList()
         .equals(other.getMeasurementsList())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
@@ -285,8 +251,6 @@ private static final long serialVersionUID = 0L;
       hash = (37 * hash) + METADATA_FIELD_NUMBER;
       hash = (53 * hash) + getMetadata().hashCode();
     }
-    hash = (37 * hash) + DATA_TYPE_FIELD_NUMBER;
-    hash = (53 * hash) + dataType_;
     if (getMeasurementsCount() > 0) {
       hash = (37 * hash) + MEASUREMENTS_FIELD_NUMBER;
       hash = (53 * hash) + getMeasurementsList().hashCode();
@@ -435,8 +399,6 @@ private static final long serialVersionUID = 0L;
         metadata_ = null;
         metadataBuilder_ = null;
       }
-      dataType_ = 0;
-
       if (measurementsBuilder_ == null) {
         measurements_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -475,7 +437,6 @@ private static final long serialVersionUID = 0L;
       } else {
         result.metadata_ = metadataBuilder_.build();
       }
-      result.dataType_ = dataType_;
       if (measurementsBuilder_ == null) {
         if (((bitField0_ & 0x00000001) != 0)) {
           measurements_ = java.util.Collections.unmodifiableList(measurements_);
@@ -535,9 +496,6 @@ private static final long serialVersionUID = 0L;
       if (other == iet.distributed.telemetry.SensorData.getDefaultInstance()) return this;
       if (other.hasMetadata()) {
         mergeMetadata(other.getMetadata());
-      }
-      if (other.dataType_ != 0) {
-        setDataTypeValue(other.getDataTypeValue());
       }
       if (measurementsBuilder_ == null) {
         if (!other.measurements_.isEmpty()) {
@@ -714,60 +672,6 @@ private static final long serialVersionUID = 0L;
       return metadataBuilder_;
     }
 
-    private int dataType_ = 0;
-    /**
-     * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-     * @return The enum numeric value on the wire for dataType.
-     */
-    @java.lang.Override public int getDataTypeValue() {
-      return dataType_;
-    }
-    /**
-     * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-     * @param value The enum numeric value on the wire for dataType to set.
-     * @return This builder for chaining.
-     */
-    public Builder setDataTypeValue(int value) {
-      
-      dataType_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-     * @return The dataType.
-     */
-    @java.lang.Override
-    public iet.distributed.telemetry.DataType getDataType() {
-      @SuppressWarnings("deprecation")
-      iet.distributed.telemetry.DataType result = iet.distributed.telemetry.DataType.valueOf(dataType_);
-      return result == null ? iet.distributed.telemetry.DataType.UNRECOGNIZED : result;
-    }
-    /**
-     * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-     * @param value The dataType to set.
-     * @return This builder for chaining.
-     */
-    public Builder setDataType(iet.distributed.telemetry.DataType value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      
-      dataType_ = value.getNumber();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.iet.distributed.telemetry.DataType data_type = 2;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearDataType() {
-      
-      dataType_ = 0;
-      onChanged();
-      return this;
-    }
-
     private java.util.List<iet.distributed.telemetry.Measurement> measurements_ =
       java.util.Collections.emptyList();
     private void ensureMeasurementsIsMutable() {
@@ -781,7 +685,7 @@ private static final long serialVersionUID = 0L;
         iet.distributed.telemetry.Measurement, iet.distributed.telemetry.Measurement.Builder, iet.distributed.telemetry.MeasurementOrBuilder> measurementsBuilder_;
 
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public java.util.List<iet.distributed.telemetry.Measurement> getMeasurementsList() {
       if (measurementsBuilder_ == null) {
@@ -791,7 +695,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public int getMeasurementsCount() {
       if (measurementsBuilder_ == null) {
@@ -801,7 +705,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public iet.distributed.telemetry.Measurement getMeasurements(int index) {
       if (measurementsBuilder_ == null) {
@@ -811,7 +715,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder setMeasurements(
         int index, iet.distributed.telemetry.Measurement value) {
@@ -828,7 +732,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder setMeasurements(
         int index, iet.distributed.telemetry.Measurement.Builder builderForValue) {
@@ -842,7 +746,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder addMeasurements(iet.distributed.telemetry.Measurement value) {
       if (measurementsBuilder_ == null) {
@@ -858,7 +762,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder addMeasurements(
         int index, iet.distributed.telemetry.Measurement value) {
@@ -875,7 +779,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder addMeasurements(
         iet.distributed.telemetry.Measurement.Builder builderForValue) {
@@ -889,7 +793,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder addMeasurements(
         int index, iet.distributed.telemetry.Measurement.Builder builderForValue) {
@@ -903,7 +807,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder addAllMeasurements(
         java.lang.Iterable<? extends iet.distributed.telemetry.Measurement> values) {
@@ -918,7 +822,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder clearMeasurements() {
       if (measurementsBuilder_ == null) {
@@ -931,7 +835,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public Builder removeMeasurements(int index) {
       if (measurementsBuilder_ == null) {
@@ -944,14 +848,14 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public iet.distributed.telemetry.Measurement.Builder getMeasurementsBuilder(
         int index) {
       return getMeasurementsFieldBuilder().getBuilder(index);
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public iet.distributed.telemetry.MeasurementOrBuilder getMeasurementsOrBuilder(
         int index) {
@@ -961,7 +865,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public java.util.List<? extends iet.distributed.telemetry.MeasurementOrBuilder> 
          getMeasurementsOrBuilderList() {
@@ -972,14 +876,14 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public iet.distributed.telemetry.Measurement.Builder addMeasurementsBuilder() {
       return getMeasurementsFieldBuilder().addBuilder(
           iet.distributed.telemetry.Measurement.getDefaultInstance());
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public iet.distributed.telemetry.Measurement.Builder addMeasurementsBuilder(
         int index) {
@@ -987,7 +891,7 @@ private static final long serialVersionUID = 0L;
           index, iet.distributed.telemetry.Measurement.getDefaultInstance());
     }
     /**
-     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 3;</code>
+     * <code>repeated .iet.distributed.telemetry.Measurement measurements = 2;</code>
      */
     public java.util.List<iet.distributed.telemetry.Measurement.Builder> 
          getMeasurementsBuilderList() {

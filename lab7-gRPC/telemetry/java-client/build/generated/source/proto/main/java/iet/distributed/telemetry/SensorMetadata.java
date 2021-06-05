@@ -22,6 +22,7 @@ private static final long serialVersionUID = 0L;
   private SensorMetadata() {
     owner_ = "";
     type_ = "";
+    dataType_ = 0;
   }
 
   @java.lang.Override
@@ -64,6 +65,12 @@ private static final long serialVersionUID = 0L;
             java.lang.String s = input.readStringRequireUtf8();
 
             type_ = s;
+            break;
+          }
+          case 24: {
+            int rawValue = input.readEnum();
+
+            dataType_ = rawValue;
             break;
           }
           default: {
@@ -174,6 +181,25 @@ private static final long serialVersionUID = 0L;
     }
   }
 
+  public static final int DATA_TYPE_FIELD_NUMBER = 3;
+  private int dataType_;
+  /**
+   * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+   * @return The enum numeric value on the wire for dataType.
+   */
+  @java.lang.Override public int getDataTypeValue() {
+    return dataType_;
+  }
+  /**
+   * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+   * @return The dataType.
+   */
+  @java.lang.Override public iet.distributed.telemetry.DataType getDataType() {
+    @SuppressWarnings("deprecation")
+    iet.distributed.telemetry.DataType result = iet.distributed.telemetry.DataType.valueOf(dataType_);
+    return result == null ? iet.distributed.telemetry.DataType.UNRECOGNIZED : result;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -194,6 +220,9 @@ private static final long serialVersionUID = 0L;
     if (!getTypeBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 2, type_);
     }
+    if (dataType_ != iet.distributed.telemetry.DataType.TEMPERATURE.getNumber()) {
+      output.writeEnum(3, dataType_);
+    }
     unknownFields.writeTo(output);
   }
 
@@ -208,6 +237,10 @@ private static final long serialVersionUID = 0L;
     }
     if (!getTypeBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, type_);
+    }
+    if (dataType_ != iet.distributed.telemetry.DataType.TEMPERATURE.getNumber()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(3, dataType_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -228,6 +261,7 @@ private static final long serialVersionUID = 0L;
         .equals(other.getOwner())) return false;
     if (!getType()
         .equals(other.getType())) return false;
+    if (dataType_ != other.dataType_) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -243,6 +277,8 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getOwner().hashCode();
     hash = (37 * hash) + TYPE_FIELD_NUMBER;
     hash = (53 * hash) + getType().hashCode();
+    hash = (37 * hash) + DATA_TYPE_FIELD_NUMBER;
+    hash = (53 * hash) + dataType_;
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -384,6 +420,8 @@ private static final long serialVersionUID = 0L;
 
       type_ = "";
 
+      dataType_ = 0;
+
       return this;
     }
 
@@ -412,6 +450,7 @@ private static final long serialVersionUID = 0L;
       iet.distributed.telemetry.SensorMetadata result = new iet.distributed.telemetry.SensorMetadata(this);
       result.owner_ = owner_;
       result.type_ = type_;
+      result.dataType_ = dataType_;
       onBuilt();
       return result;
     }
@@ -467,6 +506,9 @@ private static final long serialVersionUID = 0L;
       if (!other.getType().isEmpty()) {
         type_ = other.type_;
         onChanged();
+      }
+      if (other.dataType_ != 0) {
+        setDataTypeValue(other.getDataTypeValue());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -645,6 +687,60 @@ private static final long serialVersionUID = 0L;
   checkByteStringIsUtf8(value);
       
       type_ = value;
+      onChanged();
+      return this;
+    }
+
+    private int dataType_ = 0;
+    /**
+     * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+     * @return The enum numeric value on the wire for dataType.
+     */
+    @java.lang.Override public int getDataTypeValue() {
+      return dataType_;
+    }
+    /**
+     * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+     * @param value The enum numeric value on the wire for dataType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDataTypeValue(int value) {
+      
+      dataType_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+     * @return The dataType.
+     */
+    @java.lang.Override
+    public iet.distributed.telemetry.DataType getDataType() {
+      @SuppressWarnings("deprecation")
+      iet.distributed.telemetry.DataType result = iet.distributed.telemetry.DataType.valueOf(dataType_);
+      return result == null ? iet.distributed.telemetry.DataType.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+     * @param value The dataType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDataType(iet.distributed.telemetry.DataType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      
+      dataType_ = value.getNumber();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>.iet.distributed.telemetry.DataType data_type = 3;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearDataType() {
+      
+      dataType_ = 0;
       onChanged();
       return this;
     }
