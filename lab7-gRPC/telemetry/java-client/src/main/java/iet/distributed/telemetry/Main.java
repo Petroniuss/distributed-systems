@@ -34,7 +34,7 @@ public class Main {
     }
 
     private static void sensorJob(Sensor sensor, BatchManager batchManager) {
-        while (true) {
+        while (batchManager.isConnectionAlive()) {
             try {
                 final var measurement = sensor.getMeasurementData();
                 batchManager.enqueue(measurement);
