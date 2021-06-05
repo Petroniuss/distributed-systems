@@ -14,6 +14,126 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
+// ResourceMonitorClient is the client API for ResourceMonitor service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ResourceMonitorClient interface {
+	// client communicates with server using bidirectional async communication.
+	StreamData(ctx context.Context, opts ...grpc.CallOption) (ResourceMonitor_StreamDataClient, error)
+}
+
+type resourceMonitorClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewResourceMonitorClient(cc grpc.ClientConnInterface) ResourceMonitorClient {
+	return &resourceMonitorClient{cc}
+}
+
+func (c *resourceMonitorClient) StreamData(ctx context.Context, opts ...grpc.CallOption) (ResourceMonitor_StreamDataClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ResourceMonitor_ServiceDesc.Streams[0], "/iet.distributed.telemetry.ResourceMonitor/StreamData", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &resourceMonitorStreamDataClient{stream}
+	return x, nil
+}
+
+type ResourceMonitor_StreamDataClient interface {
+	Send(*BatchedData) error
+	Recv() (*Acknowledment, error)
+	grpc.ClientStream
+}
+
+type resourceMonitorStreamDataClient struct {
+	grpc.ClientStream
+}
+
+func (x *resourceMonitorStreamDataClient) Send(m *BatchedData) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *resourceMonitorStreamDataClient) Recv() (*Acknowledment, error) {
+	m := new(Acknowledment)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ResourceMonitorServer is the server API for ResourceMonitor service.
+// All implementations must embed UnimplementedResourceMonitorServer
+// for forward compatibility
+type ResourceMonitorServer interface {
+	// client communicates with server using bidirectional async communication.
+	StreamData(ResourceMonitor_StreamDataServer) error
+	mustEmbedUnimplementedResourceMonitorServer()
+}
+
+// UnimplementedResourceMonitorServer must be embedded to have forward compatible implementations.
+type UnimplementedResourceMonitorServer struct {
+}
+
+func (UnimplementedResourceMonitorServer) StreamData(ResourceMonitor_StreamDataServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamData not implemented")
+}
+func (UnimplementedResourceMonitorServer) mustEmbedUnimplementedResourceMonitorServer() {}
+
+// UnsafeResourceMonitorServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ResourceMonitorServer will
+// result in compilation errors.
+type UnsafeResourceMonitorServer interface {
+	mustEmbedUnimplementedResourceMonitorServer()
+}
+
+func RegisterResourceMonitorServer(s grpc.ServiceRegistrar, srv ResourceMonitorServer) {
+	s.RegisterService(&ResourceMonitor_ServiceDesc, srv)
+}
+
+func _ResourceMonitor_StreamData_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ResourceMonitorServer).StreamData(&resourceMonitorStreamDataServer{stream})
+}
+
+type ResourceMonitor_StreamDataServer interface {
+	Send(*Acknowledment) error
+	Recv() (*BatchedData, error)
+	grpc.ServerStream
+}
+
+type resourceMonitorStreamDataServer struct {
+	grpc.ServerStream
+}
+
+func (x *resourceMonitorStreamDataServer) Send(m *Acknowledment) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *resourceMonitorStreamDataServer) Recv() (*BatchedData, error) {
+	m := new(BatchedData)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ResourceMonitor_ServiceDesc is the grpc.ServiceDesc for ResourceMonitor service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ResourceMonitor_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "iet.distributed.telemetry.ResourceMonitor",
+	HandlerType: (*ResourceMonitorServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamData",
+			Handler:       _ResourceMonitor_StreamData_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "telemetry.proto",
+}
+
 // RouteGuideClient is the client API for RouteGuide service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
